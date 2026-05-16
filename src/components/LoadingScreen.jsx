@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import logoIelBranca from "../assets/logo completa branca.png";
-import logoIelVermelha from "../assets/logo completa vermelha.png"; // Importado aqui
+import logoIelBranca from "../assets/logo/logo completa branca.png";
+import logoIelVermelha from "../assets/logo/logo completa vermelha.png"; // Importado aqui
 
 const PALAVRAS = [
   "ARTES PLÁSTICAS",
