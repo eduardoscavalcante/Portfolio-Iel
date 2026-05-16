@@ -3,7 +3,7 @@ import { structureTool } from 'sanity/structure'
 
 export default defineConfig({
   name: 'default',
-  title: 'Portfolio Anderson',
+  title: 'Portfolio Iel',
   projectId: 'v2ud7lb2', // 🛠️ Seu ID oficial sincronizado
   dataset: 'production',
   basePath: '/admin', 
