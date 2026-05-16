@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+/* 1. Declarando o arquivo da fonte que está na pasta public */
+@font-face {
+  font-family: 'IelRegular';
+  src: url('/fonts/Iel-Regular.ttf') format('truetype'); /* Corrigido de 'ttf' para 'truetype' */
+  font-weight: 900; 
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 2. Registrando a fonte dentro do ecossistema do Tailwind v4 */
+@theme {
+  --font-brutal: 'IelRegular', sans-serif;
+}
