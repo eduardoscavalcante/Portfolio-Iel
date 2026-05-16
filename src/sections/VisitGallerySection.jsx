@@ -9,7 +9,7 @@ import logoVermelha from "../assets/logo/logo vermelha.png";
 
 // Imagens individuais de cada botão
 import imgArteIel from "../assets/art/ARTE IEL.jpg"; 
-import imgEterea from "../assets/art/ETEREA.jpg"; 
+import imgEterea from "../assets/art/ETEREA.JPG"; 
 import imgBehance from "../assets/art/BEHANCE.jpg"; 
 
 // Criamos um componente motion baseado no Link do React Router para herdar as animações do Framer Motion
