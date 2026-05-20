@@ -1,16 +1,36 @@
-# React + Vite
+# ⚡ Galeria Arte Iel — Artes Plásticas & Design
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Um portfólio digital disruptivo desenvolvido com **React**, **Tailwind CSS** e **Framer Motion**, projetado com uma estética pesada e expressionista inspirada em cartazes clássicos, fanzines e texturas analógicas de xerox. O projeto é totalmente responsivo, integrado ao **Sanity.io CMS** para gerenciamento dinâmico de obras e publicado de forma performática na **Vercel**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🔬 Engenharia Visual & Funcionalidades
 
-## React Compiler
+O projeto foge dos templates genéricos e limpos da web moderna para entregar uma experiência sensorial crua através de:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **Efeito Estática de TV & Granulação Estocástica:** Camada de ruído dinâmico gerada nativamente via filtros matemáticos SVG em loop infinito de alta velocidade, simulando películas antigas de cinema ou monitores analógicos fora do ar.
+* **Transição de Opacidade Cruzada na Logo:** Efeito suave e gradual no cabeçalho focado em hover, sem disparar cliques falsos ou quebras na renderização.
+* **Seção de Citação com Scroll Travado:** Mecânica assíncrona baseada em `h-[200vh]` que congela a rolagem da página para consumir a energia do scroll do mouse e revelar o manifesto visual em etapas de texto rítmicas e independentes.
+* **Efeito Túnel na Seção de Vendas:** Uso calibrado de `useScroll` e `useTransform` do Framer Motion para rotacionar e escalar quadros de forma assimétrica durante a rolagem, criando um efeito imersivo de descida.
+* **Galeria com Filtros Dinâmicos (AnimatePresence):** Reorganização automática do grid de obras baseado em superfícies e estados sem os "pulos" secos do HTML puro.
+* **Gestão de Conteúdo via Sanity.io:** Arquitetura limpa conectada ao Sanity via queries `GROQ` nativas, permitindo que o cliente atualize fotos, tags e metadados técnicos sem encostar no código do repositório.
 
-## Expanding the ESLint configuration
+## 🛠️ Tecnologias Utilizadas
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* **Front-end:** [React.js](https://react.dev/) + [Vite](https://vitejs.dev/) (Build rápido e otimizado)
+* **Estilização:** [Tailwind CSS](https://tailwindcss.com/) v4
+* **Motion Design:** [Framer Motion](https://www.framer.com/motion/) (Animações baseadas em hardware)
+* **CMS:** [Sanity.io](https://www.sanity.io/) (Headless CMS e CDN otimizado de imagens)
+* **Hospedagem:** [Vercel](https://vercel.com/) (Deploy contínuo integrado ao Git)
+
+---
+
+## 📦 Deploy na Vercel
+O projeto foi configurado com a branch main travada como gatilho de produção. Qualquer alteração ou refatoração enviada via Git passará pelo pipeline de automação da Vercel:
+
+Bash
+git add .
+git commit -m "feat: ajustes de padding e granulação brutalista"
+git push origin main
+
+Criado por Eduardo Serpa. Inspirado na estética das artes de Iel. ⚡
