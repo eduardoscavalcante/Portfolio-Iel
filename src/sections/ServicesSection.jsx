@@ -15,7 +15,7 @@ export default function ServicesSection() {
   const services = [
     { name: "ACERVO À VENDA", link: "#acervo", img: acervo, isExternalPage: false },
     { name: "PORTFÓLIO DE ARTES", link: "/portfolio", img: portfolio, isExternalPage: true },
-    { name: "AUDIOVISUAL", link: "#audiovisual", img: audiovisual, isExternalPage: true },
+    { name: "AUDIOVISUAL", link: "#audiovisual", img: audiovisual, isSoon: true },
     { name: "TATUAGEM", link: "#tatuagem", img: tattoo, isSoon: true }, 
     { name: "CUSTOMIZAÇÃO", link: "#customizacao", img: customizacao, isSoon: true }, 
   ];
