@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
 
-// IMPORT DE ASSETS GENERALIZADOS
 import bgPlaceholder from "../assets/art/IMG_0744.jpg";
 import tattoo from "../assets/tattoo/tatuagem.jpeg";
 import customizacao from "../assets/customização/boné imola.jpeg"; 
@@ -15,8 +14,8 @@ import logoVermelha from "../assets/logo/logo vermelha.png";
 export default function ServicesSection() {
   const services = [
     { name: "ACERVO À VENDA", link: "#acervo", img: acervo, isExternalPage: false },
-    { name: "PORTFÓLIO DE ARTES", link: "/portfolio", img: portfolio, isExternalPage: true }, // Redireciona para a página nova
-    { name: "AUDIOVISUAL", link: "#audiovisual", img: audiovisual, isExternalPage: false },
+    { name: "PORTFÓLIO DE ARTES", link: "/portfolio", img: portfolio, isExternalPage: true },
+    { name: "AUDIOVISUAL", link: "#audiovisual", img: audiovisual, isExternalPage: true },
     { name: "TATUAGEM", link: "#tatuagem", img: tattoo, isSoon: true }, 
     { name: "CUSTOMIZAÇÃO", link: "#customizacao", img: customizacao, isSoon: true }, 
   ];
@@ -90,13 +89,12 @@ export default function ServicesSection() {
           <span className="text-xs font-mono tracking-widest text-white opacity-70">EXPERTISE</span>
         </div>
 
-        {/* GRID DOS 5 QUADRADOS BRUTALISTAS */}
+        {/* GRID DOS 5 QUADRADOS */}
         <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4 justify-center">
           {services.map((service, index) => {
             const isSoon = service.isSoon;
             const isExternal = service.isExternalPage;
 
-            // Classes css idênticas compartilhadas para os dois tipos de botões
             const cardClasses = `relative w-full aspect-square bg-zinc-950 border border-zinc-900/80 overflow-hidden group select-none block ${
               isSoon ? "cursor-not-allowed" : "cursor-pointer"
             }`;
@@ -111,7 +109,7 @@ export default function ServicesSection() {
                   className="absolute inset-0 w-full h-full object-cover grayscale contrast-[1.5] brightness-[0.35] transition-all duration-700 group-hover:scale-105 group-hover:brightness-[0.55]"
                 />
 
-                {/* Overlays Cromáticos Brutalistas */}
+                {/* Overlays Cromáticos */}
                 <div className="absolute inset-0 bg-[#fe0000] opacity-45 mix-blend-multiply transition-opacity duration-500 group-hover:opacity-15" />
                 <div className="absolute inset-0 bg-[#bf1c21] opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none" />
 
@@ -131,7 +129,7 @@ export default function ServicesSection() {
                   </h3>
                 </div>
 
-                {/* SELO BRUTALISTA "EM BREVE" */}
+                {/* SELO "EM BREVE" */}
                 {isSoon && (
                   <div className="absolute top-0 right-0 z-30 bg-yellow-500 text-black text-[7px] sm:text-[9px] font-mono font-black tracking-widest px-1.5 py-0.5 uppercase border-b border-l border-black select-none shadow-md">
                     EM BREVE
@@ -140,7 +138,6 @@ export default function ServicesSection() {
               </>
             );
 
-            // Condicional de Roteamento Dinâmico para não quebrar a Single Page nem a rota Vercel
             if (isSoon) {
               return (
                 <motion.div key={index} variants={cardVariants} className={cardClasses}>
@@ -150,7 +147,6 @@ export default function ServicesSection() {
             }
 
             if (isExternal) {
-              // Se joga para a rota /portfolio, usa o motor do React Router
               return (
                 <motion.div key={index} variants={cardVariants} whileHover="hover">
                   <Link to={service.link} className={cardClasses}>
@@ -160,7 +156,6 @@ export default function ServicesSection() {
               );
             }
 
-            // Se for link interno por âncora (#acervo), usa o HTML nativo para deslizar na Home
             return (
               <motion.a
                 key={index}
