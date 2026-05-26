@@ -114,7 +114,11 @@ export default function SalesSection() {
   const [statusFilter, setStatusFilter] = useState("TODOS");
   const [surfaceFilter, setSurfaceFilter] = useState("TODOS");
 
-  // ⚡ CONEXÃO DINÂMICA GROQ (Adicionado o campo 'price' na busca)
+  // 📦 PARÂMETROS DE PAGINAÇÃO (Ajuste aqui a quantidade inicial e o pulo do load)
+  const ITEMS_PER_PAGE = 4; // Mostra 4 inicialmente
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+
+  // ⚡ CONEXÃO DINÂMICA GROQ
   useEffect(() => {
     async function getSalesArtworks() {
       try {
@@ -141,6 +145,11 @@ export default function SalesSection() {
     }
     getSalesArtworks();
   }, []);
+
+  // ⚙️ Engenharia de Segurança: Reseta a paginação ao mudar qualquer filtro
+  useEffect(() => {
+    setVisibleCount(ITEMS_PER_PAGE);
+  }, [statusFilter, surfaceFilter]);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -199,6 +208,9 @@ export default function SalesSection() {
     return matchStatus && matchSurface;
   });
 
+  // 🗡️ Fatiamento da lista filtrada com base no limite do botão
+  const paginatedObras = filteredObras.slice(0, visibleCount);
+
   return (
     <>
       <motion.section
@@ -242,6 +254,7 @@ export default function SalesSection() {
                 {["TODOS", "DISPONÍVEL", "VENDIDO"].map((st) => (
                   <button
                     key={st}
+                    node_modules
                     onClick={() => setStatusFilter(st)}
                     className={`px-3 py-1.5 border transition-all duration-200 uppercase ${
                       statusFilter === st 
@@ -276,7 +289,7 @@ export default function SalesSection() {
             </div>
 
             <div className="text-zinc-600 mt-2">
-              ARQUIVO: {isLoading ? "..." : filteredObras.length} / {obras.length} REGISTROS EXIBIDOS
+              ARQUIVO: {isLoading ? "..." : Math.min(visibleCount, filteredObras.length)} / {filteredObras.length} EXIBIDOS // INTEGRAL: {obras.length}
             </div>
           </div>
         </div>
@@ -288,13 +301,13 @@ export default function SalesSection() {
           ) : (
             <motion.div layout className="w-full flex flex-col">
               <AnimatePresence mode="popLayout">
-                {filteredObras.map((obra, index) => (
+                {paginatedObras.map((obra, index) => (
                   <FloatingCard
                     key={obra._id}
                     src={obra.mainImage ? urlFor(obra.mainImage).width(600).auto("format").url() : ""}
                     title={obra.title}
                     status={obra.status}
-                    price={obra.price} // 👈 Passando o valor para o card
+                    price={obra.price}
                     link={obra.link}
                     alignment={alignments[index % alignments.length]}
                     rotateDir={rotations[index % rotations.length]}
@@ -311,6 +324,21 @@ export default function SalesSection() {
                 ))}
               </AnimatePresence>
               
+              {/* ⚠️ BOTÃO CARREGAR MAIS (Apenas exibe se o total filtrado for maior que o exibido) */}
+              {filteredObras.length > visibleCount && (
+                <motion.div 
+                  layout
+                  className="w-full flex justify-center pt-8 pb-16"
+                >
+                  <button
+                    onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
+                    className="font-mono text-[10px] uppercase tracking-widest text-zinc-400 border border-zinc-800 hover:border-white hover:text-white px-8 py-4 transition-all duration-300 bg-zinc-950/40 backdrop-blur-sm active:scale-95"
+                  >
+                    [ Carregar Mais Obras // + ]
+                  </button>
+                </motion.div>
+              )}
+
               {filteredObras.length === 0 && (
                 <motion.div 
                   initial={{ opacity: 0 }} 
