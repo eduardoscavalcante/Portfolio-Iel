@@ -218,7 +218,7 @@ export default function VisitGallerySectionDisruptive() {
             
             {/* BOTÃO 01: ARTE_IEL */}
             <motion.a 
-              href="https://instagram.com/arte_iel" 
+              href="https://instagram.com/arte.iel" 
               target="_blank" 
               rel="noopener noreferrer"
               variants={itemVariants}

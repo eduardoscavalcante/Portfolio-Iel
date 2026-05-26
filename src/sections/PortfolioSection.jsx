@@ -211,7 +211,7 @@ export default function PortfolioSection() {
                             onClick={() => setSelectedArtwork(item)}
                             className="w-full py-2 border border-zinc-800 font-mono text-xs text-zinc-400 uppercase tracking-wider text-center cursor-pointer transition-colors hover:border-white hover:text-white group-hover:bg-zinc-900/80"
                           >
-                            [ DETALHES DE PROCESSO // + ]
+                            [ DETALHES // + ]
                           </button>
                         </div>
                       </motion.div>

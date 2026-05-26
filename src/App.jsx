@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
-// Telas principais
 import LoadingScreen from "./components/LoadingScreen";
 import PortfolioPage from "./pages/PortfolioPage";
+import Footer from "./components/Footer";
 
-// Suas seções originais (agora agrupadas na Home)
 import Hero from "./sections/Hero";
 import PhraseSection from "./sections/PhraseSection";
 import ServicesSection from "./sections/ServicesSection";
@@ -20,12 +19,10 @@ export default function App() {
   const [sanityConfig, setSanityConfig] = useState(null);
 
   useEffect(() => {
-    // 1. Checa a rota de forma isolada
     const isInsideAdmin = window.location.pathname === '/admin' || window.location.pathname.startsWith('/admin/');
     
     if (isInsideAdmin) {
       setIsAdmin(true);
-      // 2. Só importa a biblioteca pesada do Sanity e as configurações se o usuário REALMENTE estiver no /admin
       Promise.all([
         import('sanity'),
         import('../sanity.config')
@@ -40,7 +37,6 @@ export default function App() {
     }
   }, []);
 
-  // SE FOR A ROTA ADMIN: Renderiza direto o painel isolado (sem roteador por cima para evitar conflitos)
   if (isAdmin) {
     if (!SanityStudio || !sanityConfig) {
       return <div className="bg-black text-zinc-500 font-mono p-8 text-xs">[ INICIALIZANDO_AMBIENTE_SANITY... ]</div>;
@@ -54,7 +50,6 @@ export default function App() {
     );
   }
 
-  // SITE NORMAL: Roteamento de Engenharia para os usuários
   return (
     <div className="bg-[#0a0a0a] min-h-screen text-zinc-100 selection:bg-[#ff0000] selection:text-white">
       <AnimatePresence mode="wait">
@@ -64,21 +59,23 @@ export default function App() {
           <Router>
             <Routes>
               
-              {/* ROTA HOME (Tudo o que estava na One-Page, MENOS a PortfolioSection) */}
               <Route path="/" element={
                 <div className="w-full">
                   <Hero />
                   <PhraseSection />
                   <ServicesSection />
-                  <SalesSection />
+                  <div id="acervo">
+                    <SalesSection />
+                  </div>
                   <VisitGallerySection />
                 </div>
               } />
 
-              {/* ROTA SEPARADA DO PORTFÓLIO */}
               <Route path="/portfolio" element={<PortfolioPage />} />
 
             </Routes>
+
+            <Footer />
           </Router>
         )}
       </AnimatePresence>
