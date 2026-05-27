@@ -9,13 +9,14 @@ export default function PortfolioSection() {
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorApi, setErrorApi] = useState(false);
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("TODOS");
   const [selectedArtwork, setSelectedArtwork] = useState(null);
 
   const ITEMS_PER_PAGE = 6;
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
-  const tags = ["ARTES PLÁSTICAS", "ILUSTRAÇÃO", "DESIGN GRÁFICO", "AUDIOVISUAL"];
+  // Categorias atualizadas e travadas com os valores do CMS
+  const categories = ["TODOS", "Pinturas", "Desenhos", "Design Gráfico"];
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -36,13 +37,18 @@ export default function PortfolioSection() {
         setIsLoading(true);
         setErrorApi(false);
         
+        // Puxando category, mainImage e fullImage do Sanity
         const query = `*[_type == "artwork"] | order(year desc) {
           _id,
           title,
           year,
           description,
+          category,
           tags,
-          mainImage
+          mainImage,
+          fullImage,
+          medium,
+          size
         }`;
         
         const data = await client.fetch(query);
@@ -60,28 +66,12 @@ export default function PortfolioSection() {
 
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
-  }, [selectedTags]);
+  }, [selectedCategory]);
 
-  const toggleTag = (tag) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
-    } else {
-      setSelectedTags([...selectedTags, tag]);
-    }
-  };
-
-  const clearFilters = () => setSelectedTags([]);
-
-  const filteredItems = selectedTags.length === 0
+  // Filtro de seleção exclusiva estruturado
+  const filteredItems = selectedCategory === "TODOS"
     ? items
-    : items.filter((item) => {
-        if (!item.tags || item.tags.length === 0) return false;
-        
-        const selectedClean = selectedTags.map(t => t.trim().toUpperCase());
-        const itemTagsClean = item.tags.map(t => t.trim().toUpperCase());
-
-        return itemTagsClean.some((tag) => selectedClean.includes(tag));
-      });
+    : items.filter((item) => item.category === selectedCategory);
 
   const paginatedItems = filteredItems.slice(0, visibleCount);
 
@@ -130,33 +120,21 @@ export default function PortfolioSection() {
         {!isLoading && !errorApi && (
           <>
             <div className="flex flex-col gap-4 mb-16 max-w-5xl">
-              <span className="text-xs font-mono text-zinc-500 uppercase tracking-wider">// Filtragem</span>
+              <span className="text-xs font-mono text-zinc-500 uppercase tracking-wider">// CATEGORIAS</span>
               <div className="flex flex-wrap gap-3 items-center">
-                <button
-                  onClick={clearFilters}
-                  className={`px-4 py-2 text-xs md:text-sm font-mono tracking-wider uppercase border transition-all duration-200 cursor-pointer
-                    ${selectedTags.length === 0
-                      ? "bg-white text-black border-white font-bold"
-                      : "bg-zinc-950/80 text-zinc-500 border-zinc-800 hover:border-zinc-500 hover:text-white"
-                    }`}
-                >
-                  [ EXIBIR TODOS ]
-                </button>
-                <div className="h-4 w-[1px] bg-zinc-800 hidden sm:block" />
-                {tags.map((tag) => {
-                  const isSelected = selectedTags.includes(tag);
+                {categories.map((cat) => {
+                  const isSelected = selectedCategory === cat || (cat === "TODOS" && selectedCategory === "TODOS");
                   return (
                     <button
-                      key={tag}
-                      onClick={() => toggleTag(tag)}
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat === "TODOS" ? "TODOS" : cat)}
                       className={`px-4 py-2 text-xs md:text-sm font-mono tracking-wider uppercase border transition-all duration-300 cursor-pointer
                         ${isSelected
                           ? "bg-[#fe0000] text-white border-[#fe0000] font-bold"
                           : "bg-zinc-950/80 text-zinc-400 border-zinc-800 hover:border-white hover:text-white"
                         }`}
                     >
-                      <span className="mr-2 text-[10px]">{isSelected ? "[X]" : "[ ]"}</span>
-                      {tag}
+                      {cat === "TODOS" ? "[ EXIBIR TODOS ]" : cat}
                     </button>
                   );
                 })}
@@ -165,6 +143,7 @@ export default function PortfolioSection() {
 
             {paginatedItems.length > 0 ? (
               <div className="flex flex-col gap-16">
+                {/* GRID DE CARDS VERTICAIS */}
                 <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                   <AnimatePresence mode="popLayout">
                     {paginatedItems.map((item) => (
@@ -179,12 +158,12 @@ export default function PortfolioSection() {
                       >
                         <div 
                           onClick={() => setSelectedArtwork(item)}
-                          className="w-full aspect-square overflow-hidden bg-zinc-900 relative border border-zinc-900 cursor-zoom-in"
+                          className="w-full aspect-[3/4] overflow-hidden bg-zinc-900 relative border border-zinc-900 cursor-zoom-in"
                         >
                           {item.mainImage && (
                             <motion.img
                               layoutId={`art-img-${item._id}`}
-                              src={urlFor(item.mainImage).width(800).auto("format").url()} 
+                              src={urlFor(item.mainImage).width(600).auto("format").url()} 
                               alt={item.title}
                               className="w-full h-full object-cover transition-transform duration-500 transform group-hover:scale-[1.02]"
                             />
@@ -199,12 +178,8 @@ export default function PortfolioSection() {
                               </h3>
                               <span className="font-mono text-sm text-zinc-600">{item.year}</span>
                             </div>
-                            <div className="flex flex-wrap gap-2 pt-2 border-t border-zinc-900">
-                              {item.tags?.map((t) => (
-                                <span key={t} className={`text-[10px] font-mono tracking-widest uppercase ${selectedTags.includes(t.trim().toUpperCase()) ? "text-[#fe0000] font-bold" : "text-zinc-500"}`}>
-                                  #{t.trim().replace(" ", "_").toUpperCase()}
-                                </span>
-                              ))}
+                            <div className="flex flex-wrap gap-2 pt-1 font-mono text-[9px] text-zinc-500 uppercase">
+                              <span>{item.category || "Geral"}</span>
                             </div>
                           </div>
                           <button
@@ -219,11 +194,12 @@ export default function PortfolioSection() {
                   </AnimatePresence>
                 </motion.div>
 
+                {/* BOTÃO CARREGAR MAIS */}
                 {filteredItems.length > visibleCount && (
                   <div className="w-full flex justify-center pt-4">
                     <button
                       onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
-                      className="px-8 py-4 bg-zinc-950 text-white font-mono text-sm tracking-widest border border-zinc-800 hover:border-white hover:bg-white hover:text-black transition-all duration-300 uppercase cursor-pointer"
+                      className="px-6 py-4 bg-zinc-950 text-white font-mono text-xs tracking-widest border border-zinc-800 hover:border-white hover:bg-white hover:text-black transition-all duration-300 uppercase cursor-pointer"
                     >
                       [ CARREGAR MAIS OBRAS // + ]
                     </button>
@@ -234,7 +210,7 @@ export default function PortfolioSection() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full py-24 border border-dashed border-zinc-800 flex flex-col items-center justify-center text-center bg-zinc-950/50 backdrop-blur-sm">
                 <span className="font-mono text-xs text-[#fe0000] tracking-widest mb-2">[ ZERO_MATCH_ERROR ]</span>
                 <p className="font-brutal text-2xl md:text-3xl uppercase text-zinc-400 max-w-md">Nenhuma obra combina com os cruzamentos selecionados.</p>
-                <button onClick={clearFilters} className="mt-6 px-4 py-2 font-mono text-xs uppercase bg-white text-black border border-white font-bold hover:bg-transparent hover:text-white transition-colors cursor-pointer">Resetar Filtros</button>
+                <button onClick={() => setSelectedCategory("TODOS")} className="mt-6 px-4 py-2 font-mono text-xs uppercase bg-white text-black border border-white font-bold hover:bg-transparent hover:text-white transition-colors cursor-pointer">Resetar Filtros</button>
               </motion.div>
             )}
           </>
@@ -242,6 +218,7 @@ export default function PortfolioSection() {
 
       </div>
 
+      {/* LIGHTBOX MODAL ATUALIZADO (USA fullImage) */}
       <AnimatePresence>
         {selectedArtwork && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-12">
@@ -252,7 +229,7 @@ export default function PortfolioSection() {
               onClick={() => setSelectedArtwork(null)}
               className="absolute inset-0 bg-black backdrop-blur-md cursor-zoom-out"
             />
-            <div className="relative max-w-5xl w-full max-h-[85vh] flex flex-col md:flex-row bg-zinc-950 border border-zinc-800 p-6 gap-6 z-10">
+            <div className="relative max-w-5xl w-full max-h-[85vh] flex flex-col md:flex-row bg-zinc-950 border border-zinc-800 p-6 gap-6 z-10 overflow-y-auto md:overflow-visible">
               <button
                 onClick={() => setSelectedArtwork(null)}
                 className="absolute -top-12 right-0 md:top-6 md:right-6 font-mono text-xs tracking-widest bg-[#fe0000] text-white px-3 py-1.5 font-bold uppercase cursor-pointer border border-[#fe0000] hover:bg-transparent hover:text-[#fe0000] transition-colors"
@@ -261,9 +238,8 @@ export default function PortfolioSection() {
               </button>
               <div className="w-full md:w-3/5 flex items-center justify-center bg-zinc-900 border border-zinc-900 overflow-hidden aspect-square md:aspect-auto md:h-[65vh]">
                 {selectedArtwork.mainImage && (
-                  <motion.img
-                    layoutId={`art-img-${selectedArtwork._id}`}
-                    src={urlFor(selectedArtwork.mainImage).width(1200).auto("format").url()}
+                  <img
+                    src={urlFor(selectedArtwork.fullImage ? selectedArtwork.fullImage : selectedArtwork.mainImage).width(1200).auto("format").url()}
                     alt={selectedArtwork.title}
                     className="w-full h-full object-contain"
                   />
@@ -283,20 +259,15 @@ export default function PortfolioSection() {
                   <h3 className="font-brutal text-3xl md:text-4xl tracking-tighter leading-none uppercase text-[#fe0000]">
                     {selectedArtwork.title}
                   </h3>
-                  <div className="flex gap-4 font-mono text-xs text-zinc-400 border-y border-zinc-900 py-3 my-2">
+                  <div className="flex flex-col gap-1 font-mono text-xs text-zinc-400 border-y border-zinc-900 py-3 my-2">
                     <div><span className="text-zinc-600">ANO:</span> {selectedArtwork.year}</div>
-                    <div><span className="text-zinc-600">STATUS:</span> CATALOGADO</div>
+                    <div><span className="text-zinc-600">CATEGORIA:</span> {selectedArtwork.category || "GERAL"}</div>
+                    {selectedArtwork.size && <div><span className="text-zinc-600">DIMENSÕES:</span> {selectedArtwork.size}</div>}
+                    {selectedArtwork.medium && <div><span className="text-zinc-600">TÉCNICA:</span> {selectedArtwork.medium}</div>}
                   </div>
                   <p className="font-sans text-xs text-zinc-400 leading-relaxed uppercase tracking-wide">
                     {selectedArtwork.description || "Trabalho conceitual unindo experimentação de suporte físico, deformação cromática digital e alinhamento tipográfico assimétrico estruturado."}
                   </p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-zinc-900 flex flex-wrap gap-2">
-                  {selectedArtwork.tags?.map((t) => (
-                    <span key={t} className="px-2 py-1 bg-zinc-900 text-zinc-400 font-mono text-[10px] uppercase border border-zinc-800">
-                      {t.trim().toUpperCase()}
-                    </span>
-                  ))}
                 </div>
               </motion.div>
             </div>

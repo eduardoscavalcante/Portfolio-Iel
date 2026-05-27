@@ -6,16 +6,47 @@ export default {
     { name: 'title', title: 'Título da Obra', type: 'string' },
     { name: 'year', title: 'Ano de Produção', type: 'string' },
     { name: 'description', title: 'Descrição / Conceito', type: 'text' },
+    
+    // --- 🏷️ NOVO CAMPO ESTRUTURADO DE CATEGORIAS (Filtros Principais) ---
+    {
+      name: 'category',
+      title: 'Categoria Principal (Filtro)',
+      type: 'string',
+      description: 'Selecione a categoria para organizar no Portfólio e na Seção de Vendas.',
+      options: {
+        list: [
+          { title: 'Pinturas', value: 'Pinturas' },
+          { title: 'Desenhos', value: 'Desenhos' },
+          { title: 'Design Gráfico', value: 'Design Gráfico' }
+        ]
+      }
+    },
+    
     {
       name: 'tags',
-      title: 'Tags / Categorias (Filtros Gerais)',
+      title: 'Tags Adicionais (Opcional)',
       type: 'array',
       of: [{ type: 'string' }],
       options: { layout: 'tags' }
     },
-    { name: 'mainImage', title: 'Imagem Principal', type: 'image', options: { hotspot: true } },
+
+    // --- 🖼️ ENGENHARIA DE DUAS FOTOS (CARD vs LIGHTBOX) ---
+    { 
+      name: 'mainImage', 
+      title: 'Imagem do Card (Corte Vertical)', 
+      type: 'image', 
+      options: { hotspot: true },
+      description: 'Esta imagem aparecerá no grid principal (Layout Vertical).'
+    },
+    { 
+      name: 'fullImage', 
+      title: 'Imagem Completa (Lightbox / Tela Cheia)', 
+      type: 'image', 
+      options: { hotspot: true },
+      description: 'Esta imagem aparecerá quando o usuário clicar na obra (Proporção Real).'
+    },
     
-    // --- 🛠️ CAMPOS ADICIONADOS PARA A SEÇÃO SALES ---
+    // --- 🛠️ CAMPOS DA SEÇÃO SALES ---
     {
       name: 'isForSale',
       title: 'Colocar à Venda nesta Seção?',
@@ -36,16 +67,15 @@ export default {
     {
       name: 'price',
       title: 'Valor da Obra (Opcional)',
-      type: 'string',
-      description: 'Ex: R$ 2.400 ou Sob Consulta. Deixe em branco se for Coleção Privada.'
+      type: 'string'
     },
-    { name: 'link', title: 'Link de Interesse / Contato', type: 'string', description: 'Ex: #contato ou link do WhatsApp' },
-    { name: 'code', title: 'Código da Ficha Técnica', type: 'string', description: 'Ex: EXP_04/A' },
-    { name: 'size', title: 'Dimensões', type: 'string', description: 'Ex: 100x120 cm' },
-    { name: 'medium', title: 'Técnica / Material', type: 'string', description: 'Ex: Óleo e Carvão' },
+    { name: 'link', title: 'Link de Interesse / Contato', type: 'string' },
+    { name: 'code', title: 'Código da Ficha Técnica', type: 'string' },
+    { name: 'size', title: 'Dimensões', type: 'string' },
+    { name: 'medium', title: 'Técnica / Material', type: 'string' },
     {
       name: 'surface',
-      title: 'Suporte Físico (Filtro)',
+      title: 'Suporte Físico (Filtro por Material)',
       type: 'string',
       options: {
         list: [

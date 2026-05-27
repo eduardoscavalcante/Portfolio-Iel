@@ -1,9 +1,8 @@
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-// 🛠️ Importando o motor de conexão do Sanity
 import { client, urlFor } from "../services/sanityClient";
 
-function FloatingCard({ src, title, status, price, link, alignment, rotateDir, sizeClass, technicalData, onImageClick }) {
+function FloatingCard({ src, title, status, price, link, alignment, rotateDir, sizeClass, technicalData, onImageClick, obra }) {
   const cardRef = useRef(null);
   
   const { scrollYProgress } = useScroll({
@@ -36,7 +35,7 @@ function FloatingCard({ src, title, status, price, link, alignment, rotateDir, s
           <img
             src={src}
             alt={title}
-            onClick={() => onImageClick(src, title)}
+            onClick={() => onImageClick(obra)}
             className="w-full h-full object-cover cursor-zoom-in transition-transform duration-500 hover:scale-[1.02]"
           />
         </div>
@@ -47,11 +46,13 @@ function FloatingCard({ src, title, status, price, link, alignment, rotateDir, s
             <span className="text-white text-xs font-sans tracking-normal font-bold normal-case">
               {title}
             </span>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 text-[9px] text-zinc-500">
+              <span>{technicalData.category || "Não Categorizado"}</span>
+            </div>
+            <div className="flex items-center gap-1.5 mt-0.5">
               <span className={`w-1.5 h-1.5 rounded-full ${status === "Disponível" ? "bg-emerald-500 animate-pulse" : "bg-zinc-600"}`} />
               <span>{status === "Disponível" ? "Disponível" : "Coleção Privada"}</span>
             </div>
-            {/* 💸 EXIBIÇÃO DO VALOR DA PEÇA */}
             {status === "Disponível" && price && (
               <span className="text-zinc-200 font-bold mt-0.5 text-[11px] tracking-normal font-sans">
                 {price}
@@ -67,7 +68,7 @@ function FloatingCard({ src, title, status, price, link, alignment, rotateDir, s
               Tenho Interesse ➔
             </a>
           ) : (
-            <span className="text-zinc-600 border border-transparent px-2.5 py-1.5">
+            <span className="text-zinc-600 border border-transparent px-2.5 py-1.5 text-[9px]">
               Vendido
             </span>
           )}
@@ -104,21 +105,18 @@ function FloatingCard({ src, title, status, price, link, alignment, rotateDir, s
 
 export default function SalesSection() {
   const containerRef = useRef(null);
-  const [activeImage, setActiveImage] = useState(null);
+  const [activeArtwork, setActiveArtwork] = useState(null);
   
-  // ESTADOS DOS DADOS DO CMS
   const [obras, setObras] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Estados dos filtros
-  const [statusFilter, setStatusFilter] = useState("TODOS");
+  // Estados dos filtros casados
+  const [categoryFilter, setCategoryFilter] = useState("TODOS");
   const [surfaceFilter, setSurfaceFilter] = useState("TODOS");
 
-  // 📦 PARÂMETROS DE PAGINAÇÃO (Ajuste aqui a quantidade inicial e o pulo do load)
-  const ITEMS_PER_PAGE = 4; // Mostra 4 inicialmente
+  const ITEMS_PER_PAGE = 4;
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
-  // ⚡ CONEXÃO DINÂMICA GROQ
   useEffect(() => {
     async function getSalesArtworks() {
       try {
@@ -129,11 +127,14 @@ export default function SalesSection() {
           price,
           link,
           year,
+          category,
           mainImage,
+          fullImage,
           code,
           size,
           medium,
-          surface
+          surface,
+          description
         }`;
         const data = await client.fetch(query);
         setObras(data);
@@ -146,10 +147,9 @@ export default function SalesSection() {
     getSalesArtworks();
   }, []);
 
-  // ⚙️ Engenharia de Segurança: Reseta a paginação ao mudar qualquer filtro
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
-  }, [statusFilter, surfaceFilter]);
+  }, [categoryFilter, surfaceFilter]);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -186,7 +186,6 @@ export default function SalesSection() {
     ));
   };
 
-  // Listas matemáticas fixas para herdar o posicionamento randômico brutalista por índice
   const alignments = ["left", "right", "center", "left", "right"];
   const rotations = [-1.2, 1, -0.6, 1.4, -1];
   const sizeClasses = [
@@ -197,18 +196,13 @@ export default function SalesSection() {
     "max-w-[320px] sm:max-w-[360px]"
   ];
 
-  // Filtro casado dinâmico por status e superfície física
+  // Filtro casado por Categoria (Pintura, Desenho, Design) + Material (Tela, Papel, Madeira)
   const filteredObras = obras.filter((obra) => {
-    const matchStatus = statusFilter === "TODOS" || 
-      (statusFilter === "DISPONÍVEL" && obra.status === "Disponível") || 
-      (statusFilter === "VENDIDO" && obra.status === "Coleção Privada");
-      
+    const matchCategory = categoryFilter === "TODOS" || obra.category === categoryFilter;
     const matchSurface = surfaceFilter === "TODOS" || obra.surface === surfaceFilter;
-    
-    return matchStatus && matchSurface;
+    return matchCategory && matchSurface;
   });
 
-  // 🗡️ Fatiamento da lista filtrada com base no limite do botão
   const paginatedObras = filteredObras.slice(0, visibleCount);
 
   return (
@@ -245,32 +239,31 @@ export default function SalesSection() {
             </p>
           </div>
 
-          {/* CONTROLADORES DO FILTRO */}
+          {/* CONTROLADORES DO FILTRO BRUTALISTAS */}
           <div className="border-t border-zinc-800 pt-8 flex flex-col gap-6 font-mono text-[10px]">
-            {/* Filtro de Disponibilidade */}
+            {/* Filtro por Categoria Tipo de Obra */}
             <div className="flex flex-col gap-2">
-              <span className="text-zinc-500 uppercase tracking-wider">// STATUS COLECIONÁVEL</span>
+              <span className="text-zinc-500 uppercase tracking-wider">// CATEGORIA ARTÍSTICA</span>
               <div className="flex flex-wrap gap-2">
-                {["TODOS", "DISPONÍVEL", "VENDIDO"].map((st) => (
+                {["TODOS", "Pinturas", "Desenhos", "Design Gráfico"].map((cat) => (
                   <button
-                    key={st}
-                    node_modules
-                    onClick={() => setStatusFilter(st)}
+                    key={cat}
+                    onClick={() => setCategoryFilter(cat)}
                     className={`px-3 py-1.5 border transition-all duration-200 uppercase ${
-                      statusFilter === st 
-                        ? "bg-white text-black border-white font-bold" 
+                      categoryFilter === cat 
+                        ? "bg-[#fe0000] text-white border-[#fe0000] font-bold" 
                         : "border-zinc-800 text-zinc-400 hover:border-zinc-500 hover:text-white"
                     }`}
                   >
-                    {st === "VENDIDO" ? "COLEÇÃO PRIVADA" : st}
+                    {cat}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Filtro de Superfície */}
+            {/* Filtro por Suporte Físico / Material */}
             <div className="flex flex-col gap-2">
-              <span className="text-zinc-500 uppercase tracking-wider">// SUPORTE FÍSICO</span>
+              <span className="text-zinc-500 uppercase tracking-wider">// SUPORTE MATERIAL</span>
               <div className="flex flex-wrap gap-2">
                 {["TODOS", "TELA", "PAPEL", "MADEIRA"].map((surf) => (
                   <button
@@ -317,19 +310,18 @@ export default function SalesSection() {
                       size: obra.size,
                       medium: obra.medium,
                       surface: obra.surface,
-                      year: obra.year
+                      year: obra.year,
+                      category: obra.category
                     }}
-                    onImageClick={(src, title) => setActiveImage({ src, title })}
+                    obra={obra}
+                    onImageClick={(item) => setActiveArtwork(item)}
                   />
                 ))}
               </AnimatePresence>
               
-              {/* ⚠️ BOTÃO CARREGAR MAIS (Apenas exibe se o total filtrado for maior que o exibido) */}
+              {/* BOTÃO CARREGAR MAIS */}
               {filteredObras.length > visibleCount && (
-                <motion.div 
-                  layout
-                  className="w-full flex justify-center pt-8 pb-16"
-                >
+                <motion.div layout className="w-full flex justify-center pt-8 pb-16">
                   <button
                     onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
                     className="font-mono text-[10px] uppercase tracking-widest text-zinc-400 border border-zinc-800 hover:border-white hover:text-white px-8 py-4 transition-all duration-300 bg-zinc-950/40 backdrop-blur-sm active:scale-95"
@@ -353,22 +345,22 @@ export default function SalesSection() {
         </div>
       </motion.section>
 
-      {/* LIGHTBOX MODAL */}
+      {/* LIGHTBOX MODAL CONFIGURADO COM FOTO COMPLETA (fullImage) */}
       <AnimatePresence>
-        {activeImage && (
+        {activeArtwork && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setActiveImage(null)}
+            onClick={() => setActiveArtwork(null)}
             className="fixed inset-0 bg-black/95 z-50 flex flex-col justify-center items-center p-4 md:p-12 select-none cursor-zoom-out"
           />
         )}
-        {activeImage && (
+        {activeArtwork && (
           <div className="fixed inset-0 z-50 flex flex-col justify-center items-center p-4 md:p-12 pointer-events-none select-none">
             <button 
-              onClick={() => setActiveImage(null)}
-              className="absolute top-6 right-6 font-mono text-xs uppercase text-zinc-400 hover:text-white border-2 border-zinc-800 bg-zinc-950/60 px-3 py-1.5 transition-colors duration-200 pointer-events-auto cursor-pointer"
+              onClick={() => setActiveArtwork(null)}
+              className="absolute top-6 right-6 font-mono text-xs uppercase text-zinc-400 hover:text-white border border-zinc-800 bg-zinc-950/60 px-3 py-1.5 transition-colors duration-200 pointer-events-auto cursor-pointer"
             >
               [ fechar X ]
             </button>
@@ -378,14 +370,21 @@ export default function SalesSection() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 10 }}
               transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
-              className="relative max-w-5xl max-h-[80vh] border-2 border-zinc-900 bg-black flex items-center justify-center overflow-hidden pointer-events-auto"
+              className="relative max-w-5xl max-h-[75vh] border border-zinc-900 bg-black flex items-center justify-center overflow-hidden pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <img src={activeImage.src} alt={activeImage.title} className="max-w-full max-h-[80vh] object-contain" />
+              <img 
+                src={urlFor(activeArtwork.fullImage ? activeArtwork.fullImage : activeArtwork.mainImage).width(1200).auto("format").url()} 
+                alt={activeArtwork.title} 
+                className="max-w-full max-h-[75vh] object-contain" 
+              />
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="mt-6 font-mono text-[10px] uppercase text-zinc-400 tracking-wider text-center">
-              Exibição Expandida // <span className="text-white font-sans font-bold normal-case text-xs">{activeImage.title}</span>
+            <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="mt-4 font-mono text-[10px] uppercase text-zinc-400 tracking-wider text-center max-w-xl leading-relaxed">
+              Exibição Expandida // <span className="text-white font-sans font-bold normal-case text-xs">{activeArtwork.title}</span>
+              {activeArtwork.description && (
+                <p className="text-zinc-500 font-sans tracking-tight text-[11px] normal-case mt-1">{activeArtwork.description}</p>
+              )}
             </motion.div>
           </div>
         )}
