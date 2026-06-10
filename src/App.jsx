@@ -11,6 +11,7 @@ import PhraseSection from "./sections/PhraseSection";
 import ServicesSection from "./sections/ServicesSection";
 import SalesSection from "./sections/SalesSection";
 import VisitGallerySection from "./sections/VisitGallerySection";
+import AboutSection from "./sections/AboutSection";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -68,6 +69,7 @@ export default function App() {
                     <SalesSection />
                   </div>
                   <VisitGallerySection />
+                  {/* <AboutSection /> */}
                 </div>
               } />
 

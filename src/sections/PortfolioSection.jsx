@@ -3,6 +3,9 @@ import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "fra
 import { client, urlFor } from "../services/sanityClient";
 import headerBg from "../assets/bg/FUNDOS-02.png";
 
+import logoBranca from "../assets/logo/logo branca.png";
+import logoVermelha from "../assets/logo/logo vermelha.png";
+
 export default function PortfolioSection() {
   const sectionRef = useRef(null);
 
@@ -15,8 +18,11 @@ export default function PortfolioSection() {
   const ITEMS_PER_PAGE = 6;
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
-  // Categorias atualizadas e travadas com os valores do CMS
-  const categories = ["TODOS", "Pinturas", "Desenhos", "Design Gráfico"];
+  const categories = ["TODOS", "Pinturas", "Desenhos", "Prints", "Design Gráfico"];
+
+  const preventImageSave = (e) => {
+    e.preventDefault();
+  };
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -37,7 +43,6 @@ export default function PortfolioSection() {
         setIsLoading(true);
         setErrorApi(false);
         
-        // Puxando category, mainImage e fullImage do Sanity
         const query = `*[_type == "artwork"] | order(year desc) {
           _id,
           title,
@@ -48,7 +53,11 @@ export default function PortfolioSection() {
           mainImage,
           fullImage,
           medium,
-          size
+          size,
+          isForSale,
+          status,
+          price,
+          link
         }`;
         
         const data = await client.fetch(query);
@@ -68,7 +77,6 @@ export default function PortfolioSection() {
     setVisibleCount(ITEMS_PER_PAGE);
   }, [selectedCategory]);
 
-  // Filtro de seleção exclusiva estruturado
   const filteredItems = selectedCategory === "TODOS"
     ? items
     : items.filter((item) => item.category === selectedCategory);
@@ -143,7 +151,6 @@ export default function PortfolioSection() {
 
             {paginatedItems.length > 0 ? (
               <div className="flex flex-col gap-16">
-                {/* GRID DE CARDS VERTICAIS */}
                 <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                   <AnimatePresence mode="popLayout">
                     {paginatedItems.map((item) => (
@@ -158,14 +165,40 @@ export default function PortfolioSection() {
                       >
                         <div 
                           onClick={() => setSelectedArtwork(item)}
-                          className="w-full aspect-[3/4] overflow-hidden bg-zinc-900 relative border border-zinc-900 cursor-zoom-in"
+                          className="w-full aspect-[3/4] overflow-hidden bg-zinc-900 relative border border-zinc-900 cursor-zoom-in group/img"
                         >
+                          {item.isForSale && (
+                            <div className="absolute top-3 left-3 z-30 font-mono text-[9px] uppercase tracking-wider px-2 py-1 bg-black border border-zinc-800 text-white flex items-center gap-1.5 shadow-md">
+                              <span className={`w-1.5 h-1.5 rounded-full ${item.status === "Disponível" ? "bg-emerald-500 animate-pulse" : "bg-zinc-600"}`} />
+                              {item.status === "Disponível" ? "À Venda" : "Coleção Privada"}
+                            </div>
+                          )}
+
+                          {/* 🛡️ MARCA D'ÁGUA EXTERNA RECALIBRADA (Fica exatamente em cima do canto inferior direito da imagem) */}
+                          <div className="absolute bottom-3 right-3 z-30 h-5 w-12 select-none pointer-events-none mix-blend-screen">
+                            <img 
+                              src={logoBranca} 
+                              alt="Watermark White" 
+                              className="absolute inset-0 h-full w-full object-contain opacity-35 transition-opacity duration-500 ease-in-out group-hover/img:opacity-0" 
+                            />
+                            <img 
+                              src={logoVermelha} 
+                              alt="Watermark Red" 
+                              className="absolute inset-0 h-full w-full object-contain opacity-0 transition-opacity duration-500 ease-in-out group-hover/img:opacity-85" 
+                            />
+                          </div>
+
+                          {/* 🔒 CAPA INVISÍVEL ANTI-PROTECÇÃO (Z-20 para não chocar e travar o clique sobre o asset) */}
+                          <div className="absolute inset-0 z-20 bg-transparent select-none pointer-events-auto" onContextMenu={preventImageSave} />
+
                           {item.mainImage && (
                             <motion.img
                               layoutId={`art-img-${item._id}`}
                               src={urlFor(item.mainImage).width(600).auto("format").url()} 
                               alt={item.title}
-                              className="w-full h-full object-cover transition-transform duration-500 transform group-hover:scale-[1.02]"
+                              onContextMenu={preventImageSave}
+                              onDragStart={preventImageSave}
+                              className="w-full h-full object-cover transition-transform duration-500 transform group-hover/img:scale-[1.02] select-none pointer-events-none z-10"
                             />
                           )}
                         </div>
@@ -173,20 +206,28 @@ export default function PortfolioSection() {
                         <div className="mt-4 flex flex-col justify-between flex-grow gap-4">
                           <div className="flex flex-col gap-2">
                             <div className="flex justify-between items-start gap-4">
-                              <h3 className="font-brutal text-xl md:text-2xl tracking-tight leading-none uppercase text-zinc-200 group-hover:text-[#fe0000] transition-colors duration-200">
+                              <h3 className="font-brutal text-xl md:text-2xl tracking-tight leading-none uppercase text-zinc-200 group-hover:text-[#fe0000] transition-colors duration-200 truncate max-w-[80%]">
                                 {item.title}
                               </h3>
                               <span className="font-mono text-sm text-zinc-600">{item.year}</span>
                             </div>
-                            <div className="flex flex-wrap gap-2 pt-1 font-mono text-[9px] text-zinc-500 uppercase">
+
+                            <div className="flex justify-between items-center pt-1 font-mono text-[9px] text-zinc-500 uppercase">
                               <span>{item.category || "Geral"}</span>
+                              
+                              {item.isForSale && (
+                                <span className={`font-mono text-[10px] font-bold ${item.status === "Disponível" ? "text-emerald-400" : "text-zinc-600 line-through"}`}>
+                                  {item.status === "Disponível" ? (item.price || "[ SOB CONSULTA ]") : "[ RETIDO ]"}
+                                </span>
+                              )}
                             </div>
                           </div>
+
                           <button
                             onClick={() => setSelectedArtwork(item)}
                             className="w-full py-2 border border-zinc-800 font-mono text-xs text-zinc-400 uppercase tracking-wider text-center cursor-pointer transition-colors hover:border-white hover:text-white group-hover:bg-zinc-900/80"
                           >
-                            [ DETALHES // + ]
+                            [ DETALHES + ]
                           </button>
                         </div>
                       </motion.div>
@@ -194,7 +235,6 @@ export default function PortfolioSection() {
                   </AnimatePresence>
                 </motion.div>
 
-                {/* BOTÃO CARREGAR MAIS */}
                 {filteredItems.length > visibleCount && (
                   <div className="w-full flex justify-center pt-4">
                     <button
@@ -218,7 +258,6 @@ export default function PortfolioSection() {
 
       </div>
 
-      {/* LIGHTBOX MODAL ATUALIZADO (USA fullImage) */}
       <AnimatePresence>
         {selectedArtwork && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-12">
@@ -236,21 +275,44 @@ export default function PortfolioSection() {
               >
                 [ FECHAR X ]
               </button>
-              <div className="w-full md:w-3/5 flex items-center justify-center bg-zinc-900 border border-zinc-900 overflow-hidden aspect-square md:aspect-auto md:h-[65vh]">
+              
+              {/* CONTAINER DA IMAGEM AMPLIADA COM HOVER DE WATERMARK SEGURO */}
+              <div className="w-full md:w-3/5 flex items-center justify-center bg-zinc-900 border border-zinc-900 overflow-hidden aspect-square md:aspect-auto md:h-[65vh] relative group/modal-img cursor-default">
+                
+                {/* 🛡️ MARCA D'ÁGUA INTERNA RECALIBRADA (Z-30 em cima da imagem e da capa transparente) */}
+                <div className="absolute bottom-4 right-4 z-30 h-7 w-20 select-none pointer-events-none mix-blend-screen">
+                  <img 
+                    src={logoBranca} 
+                    alt="Modal Watermark White" 
+                    className="absolute inset-0 h-full w-full object-contain opacity-35 transition-opacity duration-500 ease-in-out group-hover/modal-img:opacity-0" 
+                  />
+                  <img 
+                    src={logoVermelha} 
+                    alt="Modal Watermark Red" 
+                    className="absolute inset-0 h-full w-full object-contain opacity-0 transition-opacity duration-500 ease-in-out group-hover/modal-img:opacity-90 animate-pulse" 
+                  />
+                </div>
+
+                {/* 🔒 CAPA INVISÍVEL ANTI-PROTECÇÃO (Z-20) */}
+                <div className="absolute inset-0 z-20 bg-transparent select-none pointer-events-auto" onContextMenu={preventImageSave} />
+
                 {selectedArtwork.mainImage && (
                   <img
                     src={urlFor(selectedArtwork.fullImage ? selectedArtwork.fullImage : selectedArtwork.mainImage).width(1200).auto("format").url()}
                     alt={selectedArtwork.title}
-                    className="w-full h-full object-contain"
+                    onContextMenu={preventImageSave}
+                    onDragStart={preventImageSave}
+                    className="w-full h-full object-contain select-none pointer-events-none z-10"
                   />
                 )}
               </div>
+
               <motion.div 
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
                 transition={{ delay: 0.15 }}
-                className="w-full md:w-2/5 flex flex-col justify-between pt-2"
+                className="w-full md:w-2/5 flex flex-col justify-between pt-2 gap-6"
               >
                 <div className="flex flex-col gap-4">
                   <span className="font-mono text-[10px] text-zinc-500 tracking-widest uppercase">
@@ -269,6 +331,38 @@ export default function PortfolioSection() {
                     {selectedArtwork.description || "Trabalho conceitual unindo experimentação de suporte físico, deformação cromática digital e alinhamento tipográfico assimétrico estruturado."}
                   </p>
                 </div>
+
+                {/* Box de Informações Comerciais */}
+                {selectedArtwork.isForSale ? (
+                  <div className="w-full bg-zinc-900/60 border border-zinc-900 p-4 font-mono text-[10px] uppercase flex flex-col gap-3 mt-auto">
+                    <div className="flex justify-between items-center">
+                      <span className="text-zinc-500">ESTADO DA VENDA:</span>
+                      <span className={`font-bold ${selectedArtwork.status === "Disponível" ? "text-emerald-400" : "text-zinc-600"}`}>
+                        {selectedArtwork.status === "Disponível" ? "DISPONÍVEL" : "COLEÇÃO PRIVADA"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-zinc-800/60 pt-2">
+                      <span className="text-zinc-500">VALOR DA OBRA:</span>
+                      <span className="text-white font-sans font-bold text-sm">
+                        {selectedArtwork.status === "Disponível" ? (selectedArtwork.price || "SOB CONSULTA") : "VENDIDO"}
+                      </span>
+                    </div>
+
+                    {selectedArtwork.status === "Disponível" && (
+                      <a
+                        href={selectedArtwork.link || "#contato"}
+                        className="w-full mt-1 py-2 bg-white text-black hover:bg-[#fe0000] hover:text-white text-center font-sans text-xs font-bold tracking-normal transition-colors duration-200 block uppercase"
+                      >
+                        Tenho Interesse na Peça ➔
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <div className="w-full border border-dashed border-zinc-900 p-3 text-center font-mono text-[9px] text-zinc-600 uppercase mt-auto">
+                    [ Obra não catalogada para fins comerciais ]
+                  </div>
+                )}
+
               </motion.div>
             </div>
           </div>

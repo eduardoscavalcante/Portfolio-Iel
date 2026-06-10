@@ -20,7 +20,6 @@ export default function ServicesSection() {
     { name: "CUSTOMIZAÇÃO", link: "#customizacao", img: customizacao, isSoon: true }, 
   ];
 
-  // Configuração do motor de trepidação física da estática de TV
   const tvStaticAnimation = {
     x: [0, -15, 30, -5, 20, -25, 10, -35, 0],
     y: [0, 25, -10, 20, -30, 5, -15, 25, 0],
@@ -31,7 +30,6 @@ export default function ServicesSection() {
     }
   };
 
-  // Variantes de animação para os blocos surgirem com impacto seco de bloco de concreto
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -58,7 +56,6 @@ export default function ServicesSection() {
       viewport={{ once: true, margin: "-12%" }}
       className="relative w-full bg-black text-white py-16 px-4 md:px-12 z-30" 
     >
-      {/* 1. ENGENHARIA DE FUNDO FIXO E TRAVADO */}
       <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden [clip-path:inset(0_0_0_0)]">
         <div className="fixed inset-0 w-full h-screen z-0">
           

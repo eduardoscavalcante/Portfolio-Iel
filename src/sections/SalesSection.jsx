@@ -2,7 +2,10 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import { useRef, useState, useEffect } from "react";
 import { client, urlFor } from "../services/sanityClient";
 
-function FloatingCard({ src, title, status, price, link, alignment, rotateDir, sizeClass, technicalData, onImageClick, obra }) {
+import logoBranca from "../assets/logo/logo branca.png";
+import logoVermelha from "../assets/logo/logo vermelha.png";
+
+function FloatingCard({ src, title, status, price, link, alignment, rotateDir, sizeClass, technicalData, onImageClick, obra, preventImageSave }) {
   const cardRef = useRef(null);
   
   const { scrollYProgress } = useScroll({
@@ -28,53 +31,76 @@ function FloatingCard({ src, title, status, price, link, alignment, rotateDir, s
       exit={{ opacity: 0, scale: 0.8 }}
       className={`w-full flex ${alignClasses} my-12 md:my-16 first:mt-0 last:mb-0 select-none z-10`}
     >
-      <div className={`relative w-full ${sizeClass} bg-zinc-900/40 p-4 border border-zinc-800/60 backdrop-blur-sm flex flex-col`}>
+      <div className={`relative w-full ${sizeClass} bg-zinc-900/40 p-4 border border-zinc-800/60 backdrop-blur-sm flex flex-col group/card`}>
         
-        {/* CONTAINER DA OBRA */}
-        <div className="w-full aspect-[4/5] overflow-hidden bg-zinc-950 border border-zinc-800">
-          <img
-            src={src}
-            alt={title}
-            onClick={() => onImageClick(obra)}
-            className="w-full h-full object-cover cursor-zoom-in transition-transform duration-500 hover:scale-[1.02]"
+        <div className="absolute -top-6 -right-6 z-50 h-12 w-36 select-none pointer-events-none mix-blend-screen rotate-12 transition-transform duration-300 group-hover/card:scale-110 group-hover/card:rotate-[18deg]">
+          <img 
+            src={logoBranca} 
+            alt="Badge External White" 
+            className="absolute inset-0 h-full w-full object-contain opacity-100 transition-opacity duration-500 ease-in-out group-hover/card:opacity-0" 
+          />
+          <img 
+            src={logoVermelha} 
+            alt="Badge External Red" 
+            className="absolute inset-0 h-full w-full object-contain opacity-0 transition-opacity duration-500 ease-in-out group-hover/card:opacity-100" 
           />
         </div>
 
-        {/* METADADOS PRINCIPAIS DO CARD */}
+        <div className="w-full aspect-[4/5] overflow-hidden bg-zinc-950 border border-zinc-800 relative cursor-zoom-in">
+          <div className="absolute top-3 left-3 z-30 font-mono text-[9px] uppercase tracking-wider px-2 py-1 bg-black border border-zinc-800 text-white flex items-center gap-1.5 shadow-md">
+            <span className={`w-1.5 h-1.5 rounded-full ${status === "Disponível" ? "bg-emerald-500 animate-pulse" : "bg-zinc-600"}`} />
+            {status === "Disponível" ? "À Venda" : "Acervo Privado"}
+          </div>
+
+          <div className="absolute inset-0 z-20 bg-transparent select-none pointer-events-auto" onClick={() => onImageClick(obra)} onContextMenu={preventImageSave} />
+
+          <img
+            src={src}
+            alt={title}
+            onContextMenu={preventImageSave}
+            onDragStart={preventImageSave}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-[1.02] select-none pointer-events-none z-10"
+          />
+        </div>
+
         <div className="w-full flex justify-between items-end mt-4 font-mono uppercase text-[10px] tracking-wider text-zinc-400">
-          <div className="flex flex-col gap-1">
-            <span className="text-white text-xs font-sans tracking-normal font-bold normal-case">
+          <div className="flex flex-col gap-1 w-full max-w-[65%]">
+            <span className="text-white text-xs font-sans tracking-normal font-bold normal-case truncate block">
               {title}
             </span>
             <div className="flex items-center gap-1.5 text-[9px] text-zinc-500">
               <span>{technicalData.category || "Não Categorizado"}</span>
             </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`w-1.5 h-1.5 rounded-full ${status === "Disponível" ? "bg-emerald-500 animate-pulse" : "bg-zinc-600"}`} />
-              <span>{status === "Disponível" ? "Disponível" : "Coleção Privada"}</span>
+            
+            <div className="mt-1 font-mono text-[10px] tracking-tight">
+              {status === "Disponível" ? (
+                price ? (
+                  <span className="text-emerald-400 font-sans font-bold text-xs tracking-normal">{price}</span>
+                ) : (
+                  <span className="text-zinc-500 italic lowercase text-[9px]">[sob consulta]</span>
+                )
+              ) : (
+                <span className="text-zinc-600 line-through">[valor retido]</span>
+              )}
             </div>
-            {status === "Disponível" && price && (
-              <span className="text-zinc-200 font-bold mt-0.5 text-[11px] tracking-normal font-sans">
-                {price}
+          </div>
+
+          <div className="w-max flex justify-end">
+            {status === "Disponível" ? (
+              <a
+                href={link || "#contato"}
+                className="px-2.5 py-1.5 border border-zinc-700 hover:border-[#fe0000] hover:text-[#fe0000] transition-colors duration-300 text-[9px] bg-zinc-950 whitespace-nowrap font-bold"
+              >
+                Tenho Interesse ➔
+              </a>
+            ) : (
+              <span className="text-zinc-600 border border-zinc-800 bg-zinc-950/20 px-2.5 py-1.5 text-[9px] cursor-not-allowed uppercase font-bold tracking-widest">
+                Esgotado
               </span>
             )}
           </div>
-
-          {status === "Disponível" ? (
-            <a
-              href={link || "#contato"}
-              className="px-2.5 py-1.5 border border-zinc-700 hover:border-white hover:text-white transition-colors duration-300 text-[9px] bg-zinc-950"
-            >
-              Tenho Interesse ➔
-            </a>
-          ) : (
-            <span className="text-zinc-600 border border-transparent px-2.5 py-1.5 text-[9px]">
-              Vendido
-            </span>
-          )}
         </div>
 
-        {/* FICHA TÉCNICA FIXA */}
         <div className="w-full bg-zinc-950/60 text-zinc-400 p-3 font-mono text-[9px] uppercase tracking-tight border border-zinc-800/60 flex flex-col gap-1 mt-4">
           <div className="flex justify-between border-b border-zinc-800 pb-1 text-zinc-500 font-bold">
             <span>Ficha Técnica</span>
@@ -110,12 +136,15 @@ export default function SalesSection() {
   const [obras, setObras] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Estados dos filtros casados
   const [categoryFilter, setCategoryFilter] = useState("TODOS");
   const [surfaceFilter, setSurfaceFilter] = useState("TODOS");
 
-  const ITEMS_PER_PAGE = 4;
+  const ITEMS_PER_PAGE = 3;
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+
+  const preventImageSave = (e) => {
+    e.preventDefault();
+  };
 
   useEffect(() => {
     async function getSalesArtworks() {
@@ -196,7 +225,6 @@ export default function SalesSection() {
     "max-w-[320px] sm:max-w-[360px]"
   ];
 
-  // Filtro casado por Categoria (Pintura, Desenho, Design) + Material (Tela, Papel, Madeira)
   const filteredObras = obras.filter((obra) => {
     const matchCategory = categoryFilter === "TODOS" || obra.category === categoryFilter;
     const matchSurface = surfaceFilter === "TODOS" || obra.surface === surfaceFilter;
@@ -212,7 +240,6 @@ export default function SalesSection() {
         style={{ backgroundColor }}
         className="relative w-full text-white px-6 md:px-16 py-32 font-sans grid grid-cols-1 md:grid-cols-12 gap-12 transition-colors duration-300"
       >
-        {/* COLUNA ESQUERDA FIXA */}
         <div className="md:col-span-5 h-fit md:sticky md:top-24 flex flex-col justify-between py-6 z-20 gap-8">
           <div className="flex flex-col gap-6">
             <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-500 uppercase">
@@ -235,17 +262,15 @@ export default function SalesSection() {
             </motion.h2>
 
             <p className="text-zinc-400 text-sm leading-relaxed max-w-xs normal-case font-normal mt-2">
-              Edições físicas e peças originais desenvolvidas sob experimentação gráfica. Artes originais e únicas.
+              Peças originais e edições físicas exclusivas desenvolvidas sob experimentação cromática.
             </p>
           </div>
 
-          {/* CONTROLADORES DO FILTRO BRUTALISTAS */}
           <div className="border-t border-zinc-800 pt-8 flex flex-col gap-6 font-mono text-[10px]">
-            {/* Filtro por Categoria Tipo de Obra */}
             <div className="flex flex-col gap-2">
               <span className="text-zinc-500 uppercase tracking-wider">// CATEGORIA ARTÍSTICA</span>
               <div className="flex flex-wrap gap-2">
-                {["TODOS", "Pinturas", "Desenhos", "Design Gráfico"].map((cat) => (
+                {["TODOS", "Pinturas", "Desenhos", "Prints", "Design Gráfico"].map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setCategoryFilter(cat)}
@@ -261,7 +286,6 @@ export default function SalesSection() {
               </div>
             </div>
 
-            {/* Filtro por Suporte Físico / Material */}
             <div className="flex flex-col gap-2">
               <span className="text-zinc-500 uppercase tracking-wider">// SUPORTE MATERIAL</span>
               <div className="flex flex-wrap gap-2">
@@ -287,7 +311,6 @@ export default function SalesSection() {
           </div>
         </div>
 
-        {/* COLUNA DIREITA DOS CARDS */}
         <div className="md:col-span-7 w-full flex flex-col justify-start min-h-[60vh]">
           {isLoading ? (
             <div className="w-full py-32 flex justify-center font-mono text-xs text-zinc-500 uppercase animate-pulse">[ CONECTANDO_ACERVO_COMERCIAL... ]</div>
@@ -315,18 +338,18 @@ export default function SalesSection() {
                     }}
                     obra={obra}
                     onImageClick={(item) => setActiveArtwork(item)}
+                    preventImageSave={preventImageSave}
                   />
                 ))}
               </AnimatePresence>
               
-              {/* BOTÃO CARREGAR MAIS */}
               {filteredObras.length > visibleCount && (
                 <motion.div layout className="w-full flex justify-center pt-8 pb-16">
                   <button
                     onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
-                    className="font-mono text-[10px] uppercase tracking-widest text-zinc-400 border border-zinc-800 hover:border-white hover:text-white px-8 py-4 transition-all duration-300 bg-zinc-950/40 backdrop-blur-sm active:scale-95"
+                    className="font-mono text-[10px] uppercase tracking-widest text-white border border-zinc-800 hover:border-white hover:bg-white hover:text-black px-8 py-4 transition-all duration-300 bg-zinc-950/40 backdrop-blur-sm active:scale-95"
                   >
-                    [ Carregar Mais Obras // + ]
+                    [ Mostrar Mais // +3 ]
                   </button>
                 </motion.div>
               )}
@@ -345,7 +368,6 @@ export default function SalesSection() {
         </div>
       </motion.section>
 
-      {/* LIGHTBOX MODAL CONFIGURADO COM FOTO COMPLETA (fullImage) */}
       <AnimatePresence>
         {activeArtwork && (
           <motion.div
@@ -370,21 +392,64 @@ export default function SalesSection() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 10 }}
               transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
-              className="relative max-w-5xl max-h-[75vh] border border-zinc-900 bg-black flex items-center justify-center overflow-hidden pointer-events-auto"
+              className="relative max-w-5xl max-h-[70vh] border border-zinc-900 bg-black flex items-center justify-center overflow-hidden pointer-events-auto group/modal-img"
               onClick={(e) => e.stopPropagation()}
             >
+              <div className="absolute bottom-4 right-4 z-30 h-7 w-20 select-none pointer-events-none mix-blend-screen">
+                <img 
+                  src={logoBranca} 
+                  alt="Modal Watermark White" 
+                  className="absolute inset-0 h-full w-full object-contain opacity-35 transition-opacity duration-500 ease-in-out group-hover/modal-img:opacity-0" 
+                />
+                <img 
+                  src={logoVermelha} 
+                  alt="Modal Watermark Red" 
+                  className="absolute inset-0 h-full w-full object-contain opacity-0 transition-opacity duration-500 ease-in-out group-hover/modal-img:opacity-90 animate-pulse" 
+                />
+              </div>
+
+              <div className="absolute inset-0 z-20 bg-transparent select-none pointer-events-auto" onContextMenu={preventImageSave} />
+
               <img 
                 src={urlFor(activeArtwork.fullImage ? activeArtwork.fullImage : activeArtwork.mainImage).width(1200).auto("format").url()} 
                 alt={activeArtwork.title} 
-                className="max-w-full max-h-[75vh] object-contain" 
+                onContextMenu={preventImageSave}
+                onDragStart={preventImageSave}
+                className="max-w-full max-h-[70vh] object-contain select-none pointer-events-none z-10" 
               />
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="mt-4 font-mono text-[10px] uppercase text-zinc-400 tracking-wider text-center max-w-xl leading-relaxed">
-              Exibição Expandida // <span className="text-white font-sans font-bold normal-case text-xs">{activeArtwork.title}</span>
-              {activeArtwork.description && (
-                <p className="text-zinc-500 font-sans tracking-tight text-[11px] normal-case mt-1">{activeArtwork.description}</p>
-              )}
+            <motion.div 
+              initial={{ opacity: 0, y: 5 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              className="mt-6 font-mono text-[10px] uppercase text-zinc-400 tracking-wider text-center max-w-2xl leading-relaxed pointer-events-auto bg-zinc-950/80 p-4 border border-zinc-900 backdrop-blur-md w-full flex flex-col md:flex-row justify-between items-center gap-4"
+            >
+              <div className="text-left flex flex-col gap-0.5">
+                <div>
+                  EXIBIÇÃO EXPANDIDA // <span className="text-white font-sans font-bold normal-case text-sm">{activeArtwork.title}</span>
+                </div>
+                {activeArtwork.description && (
+                  <p className="text-zinc-500 font-sans tracking-tight text-[11px] normal-case mt-0.5">{activeArtwork.description}</p>
+                )}
+              </div>
+              
+              <div className="flex items-center gap-4 border-t md:border-t-0 md:border-l border-zinc-800 pt-3 md:pt-0 md:pl-4 w-full md:w-auto justify-between md:justify-end">
+                <div className="flex flex-col items-end text-right font-mono text-[9px]">
+                  <span className="text-zinc-500">ESTADO COMERCIAL:</span>
+                  <span className={activeArtwork.status === "Disponível" ? "text-emerald-400 font-bold" : "text-zinc-600 font-bold"}>
+                    {activeArtwork.status === "Disponível" ? `DISPONÍVEL // ${activeArtwork.price || "SOB CONSULTA"}` : "COLEÇÃO PRIVADA"}
+                  </span>
+                </div>
+
+                {activeArtwork.status === "Disponível" && (
+                  <a
+                    href={activeArtwork.link || "#contato"}
+                    className="px-3 py-1.5 bg-[#fe0000] text-white hover:bg-white hover:text-black transition-colors duration-200 font-bold tracking-normal font-sans text-xs"
+                  >
+                    Negociar Obra
+                  </a>
+                )}
+              </div>
             </motion.div>
           </div>
         )}

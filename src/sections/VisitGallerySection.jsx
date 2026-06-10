@@ -1,25 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
-
-// IMPORT DE ASSETS GENERALIZADOS
 import sectionDefaultBg from "../assets/art/IMG_3295.jpg"; 
 import cardBg from "../assets/art/IMG_3295.jpg"; 
 import logoVermelha from "../assets/logo/logo vermelha.png";
-
-// Imagens individuais de cada botão
 import imgArteIel from "../assets/art/ARTE IEL.jpg"; 
-import imgEterea from "../assets/art/ETEREA.JPG"; 
+import imgEterea from "../assets/art/EM.ETEREA.JPG"; 
 import imgBehance from "../assets/art/BEHANCE.jpg"; 
 
-// Criamos um componente motion baseado no Link do React Router para herdar as animações do Framer Motion
 const MotionLink = motion(Link);
 
 export default function VisitGallerySectionDisruptive() {
   const [hoveredBg, setHoveredBg] = useState(null);
   const controls = useAnimation();
-
-  // Coreografia de trepidação física da estática de TV
   const tvStaticAnimation = {
     x: [0, -15, 30, -5, 20, -25, 10, -35, 0],
     y: [0, 25, -10, 20, -30, 5, -15, 25, 0],
@@ -31,7 +24,6 @@ export default function VisitGallerySectionDisruptive() {
     }
   };
 
-  // Variantes de entrada
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -58,8 +50,6 @@ export default function VisitGallerySectionDisruptive() {
       viewport={{ once: true, margin: "-10%" }}
       className="w-full bg-black text-white py-32 px-4 md:px-16 select-none overflow-hidden relative min-h-screen flex items-center z-30 font-brutal"
     >
-      
-      {/* ─── FUNDO FIXO COM ESTÁTICA E DISRUPÇÃO ─── */}
       <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden [clip-path:inset(0_0_0_0)] z-0">
         <div className="fixed inset-0 w-full h-screen z-0">
           <AnimatePresence mode="popLayout">
@@ -216,7 +206,7 @@ export default function VisitGallerySectionDisruptive() {
               }
             `}</style>
             
-            {/* BOTÃO 01: ARTE_IEL */}
+            {/* BOTÃO 01: ARTE.IEL */}
             <motion.a 
               href="https://instagram.com/arte.iel" 
               target="_blank" 
@@ -251,7 +241,7 @@ export default function VisitGallerySectionDisruptive() {
 
               <div className="absolute inset-0 flex items-center justify-center p-2 text-center z-30">
                 <h4 className="text-white text-xs sm:text-sm md:text-xl font-brutal font-bold tracking-tighter uppercase leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
-                  ARTE_IEL
+                  ARTE.IEL
                 </h4>
               </div>
             </motion.a>
@@ -297,7 +287,7 @@ export default function VisitGallerySectionDisruptive() {
 
             {/* BOTÃO 03: BEHANCE */}
             <motion.a 
-              href="https://behance.net/seu_behance" 
+              href="https://www.behance.net/ielferreira" 
               target="_blank" 
               rel="noopener noreferrer"
               variants={itemVariants}

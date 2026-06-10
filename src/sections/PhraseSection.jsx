@@ -1,8 +1,6 @@
 import { motion } from "framer-motion";
-// Import oficial e definitivo do seu asset — intocável!
-import tvImage from "../assets/art/IMG_0744.jpg"; 
+import tvImage from "../assets/art/A ISCA.JPG"; 
 
-// Função que quebra o texto e aplica o impacto seco com o tremor inicial
 const brutalImpactEffect = (text) => {
   const letterVariants = {
     hidden: { 
@@ -10,18 +8,17 @@ const brutalImpactEffect = (text) => {
       scale: 0.7, 
       x: 0,
       rotate: -12,
-      color: "#ffffff" // Começa branca no impacto inicial
+      color: "#ffffff"
     },
     visible: { 
       opacity: 1, 
       scale: 1,
       x: [0, -8, 6, -4, 2, 0], 
       rotate: [0, -12, 8, -5, 2, 0], 
-      color: "#9b0100", // Alvo: Vermelho escuro sólido pedido
+      color: "#9b0100",
       transition: { 
-        duration: 0.7, // Tremor inicial nítido e pesado
+        duration: 0.7,
         ease: "easeOut",
-        // A transição de cor leva 3.5 segundos para um efeito bem lento e denso
         color: { duration: 3.5, delay: 0.6, ease: "easeInOut" }
       } 
     }
@@ -40,33 +37,31 @@ const brutalImpactEffect = (text) => {
 };
 
 export default function PhraseSection() {
-  // Container principal que gerencia o background dinâmico interligando as seções
   const sectionVariants = {
     hidden: { 
-      backgroundColor: "#bf1c21", // Sempre inicia tingido no vermelho escuro para evitar o vazio preto
+      backgroundColor: "#bf1c21",
     },
     visible: {
-      backgroundColor: "#fe0000", // Transiciona lentamente até o vermelho puro na rolagem
+      backgroundColor: "#fe0000",
       transition: {
-        duration: 3.0, // Transição de fundo de 3 segundos
+        duration: 3.0,
         delay: 0.3,
         ease: "easeInOut"
       }
     }
   };
 
-  // Variantes exclusivas para o texto gerenciar o Blend Mode
   const textContainerVariants = {
     hidden: { 
       opacity: 0,
-      mixBlendMode: "difference" // Inversão agressiva no impacto inicial
+      mixBlendMode: "difference"
     },
     visible: {
       opacity: 1,
-      mixBlendMode: "normal", // Transiciona para mate sólido
+      mixBlendMode: "normal",
       transition: {
-        triggerChildren: 0, // Todas as linhas surgem juntas
-        mixBlendMode: { duration: 3.5, delay: 0.6, ease: "easeInOut" } // Acompanha os 3.5s das letras
+        triggerChildren: 0,
+        mixBlendMode: { duration: 3.5, delay: 0.6, ease: "easeInOut" } 
       }
     }
   };
@@ -75,13 +70,12 @@ export default function PhraseSection() {
     hidden: {},
     visible: {
       transition: {
-        staggerChildren: 0.08, // Cadência perfeita e ritmada letra por letra
+        staggerChildren: 0.08,
         delayChildren: 0.2
       }
     }
   };
 
-  // Entrada em estilo "Soco na Tela" - Desacelerada para dar imponência ao gigantismo
   const starHoleVariants = {
     hidden: { 
       opacity: 0, 
@@ -93,13 +87,12 @@ export default function PhraseSection() {
       scale: 1, 
       rotate: 0, 
       transition: { 
-        duration: 1.2, // Frenagem pesada e cinematográfica
-        ease: [0.11, 0, 0, 1] // Curva de impacto seco (Impact Punch)
+        duration: 1.2,
+        ease: [0.11, 0, 0, 1]
       }
     }
   };
 
-  // Imagem surge de forma contínua sintonizando o sinal da TV
   const imageFadeInVariants = {
     hidden: { 
       opacity: 0,
@@ -109,14 +102,13 @@ export default function PhraseSection() {
       opacity: 0.65, 
       scale: 1,
       transition: { 
-        duration: 3.5, // Imagem sintoniza de forma bem gradual
+        duration: 3.5,
         delay: 0.6,    
         ease: "easeInOut" 
       }
     }
   };
 
-  // Animação de estática agressiva de alta frequência para ferver a granulação
   const tvStaticAnimation = {
     x: [0, -20, 40, -10, 25, -30, 15, -40, 0],
     y: [0, 30, -15, 25, -35, 10, -20, 30, 0],
@@ -144,13 +136,6 @@ export default function PhraseSection() {
         className="absolute inset-0 flex justify-center items-center z-10 pointer-events-none p-4"
       >
         <div 
-          /* 
-            MUDANÇA AQUI:
-            - Removido os tamanhos arbitrários de viewport espichados (h-[85vh], etc).
-            - Adicionado `w-full max-w-[90vw] md:max-w-[55vw]` para controlar a largura responsiva.
-            - Adicionado `aspect-square` para garantir que a proporção X e Y seja idêntica, impedindo o achatamento.
-            - No desktop (`md:`), se preferir ela levemente mais alta, mude de `aspect-square` para `md:aspect-[4/5]`, mas o quadrado mata o erro em qualquer tela.
-          */
           className="w-full max-w-[95vw] sm:max-w-[75vw] md:max-w-[55vw] aspect-square bg-[#0c0c0c] relative overflow-hidden pointer-events-auto"
           style={{
             clipPath: "polygon(50% 0%, 57% 18%, 78% 8%, 70% 28%, 95% 25%, 80% 43%, 100% 55%, 78% 62%, 88% 85%, 65% 78%, 60% 100%, 48% 82%, 30% 95%, 35% 72%, 5% 82%, 18% 58%, 0% 45%, 22% 38%, 10% 15%, 32% 25%, 38% 3%, 46% 20%)"
@@ -215,7 +200,6 @@ export default function PhraseSection() {
         </motion.h2>
       </motion.div>
 
-      {/* Detalhes marginais de catálogo técnico - AGORA CORRIGIDO PARA BRANCO */}
       <div className="absolute bottom-8 left-6 md:left-12 font-mono text-[9px] tracking-[0.2em] text-white/60 uppercase hidden sm:block">
         [ MANIFESTO VISUAL ]
       </div>
