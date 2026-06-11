@@ -70,6 +70,7 @@ export default function App() {
                   </div>
                   <VisitGallerySection />
                   {/* <AboutSection /> */}
+                  
                 </div>
               } />
 

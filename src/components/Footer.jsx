@@ -42,7 +42,6 @@ export default function Footer() {
     >
       <div className="w-full border-t border-zinc-800/40 pt-12 grid grid-cols-1 md:grid-cols-3 gap-10 text-zinc-400 font-mono text-[11px] tracking-wider uppercase">
         
-        {/* Navegação */}
         <motion.div variants={itemVariants} className="flex flex-col gap-3">
           <span className="text-zinc-600 font-bold tracking-[0.2em]">Navegação</span>
           <Link to="/#acervo" className="hover:text-white transition-colors duration-300 w-fit">Acervo à Venda</Link>
@@ -51,17 +50,15 @@ export default function Footer() {
           <Link to="/#contato" className="hover:text-white transition-colors duration-300 w-fit">Contato</Link>
         </motion.div>
 
-        {/* Redes */}
         <motion.div variants={itemVariants} className="flex flex-col gap-3">
           <span className="text-zinc-600 font-bold tracking-[0.2em]">Redes / Conexões</span>
           <a href="https://instagram.com/arte.iel" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff0000] transition-colors duration-300 w-fit">Instagram Principal ↗</a>
           <a href="https://instagram.com/em.eterea" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff0000] transition-colors duration-300 w-fit">Instagram Secundário ↗</a>
           <a href="https://www.behance.net/ielferreira" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff0000] transition-colors duration-300 w-fit">Behance ↗</a>
           <a href="https://www.tiktok.com/@ielferr?_r=1&_t=ZS-9753GgzSvbB" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff0000] transition-colors duration-300 w-fit">TikTok ↗</a>
-          <a href="https://www.linkedin.com/me?trk=p_mwlite_feed-secondary_nav" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff0000] transition-colors duration-300 w-fit">LinkedIn ↗</a>
+          <a href="https://www.linkedin.com/in/iel-silva-18b900373/" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff0000] transition-colors duration-300 w-fit">LinkedIn ↗</a>
         </motion.div>
 
-        {/* Contato e Botões */}
         <motion.div variants={itemVariants} className="flex flex-col justify-between items-start md:items-end gap-6">
           <div className="text-left md:text-right flex flex-col gap-2">
             <span className="text-zinc-600 font-bold tracking-[0.2em]">Contato</span>
@@ -85,7 +82,6 @@ export default function Footer() {
         </motion.div>
       </div>
 
-      {/* Créditos */}
       <motion.div 
         variants={itemVariants}
         className="w-full flex flex-col sm:flex-row justify-between items-center border-t border-zinc-900 pt-6 text-[10px] font-mono tracking-[0.3em] text-zinc-600 uppercase"

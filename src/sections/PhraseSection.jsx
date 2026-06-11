@@ -127,10 +127,8 @@ export default function PhraseSection() {
       viewport={{ once: true, margin: "-25%" }}
       className="relative w-full min-h-screen bg-[#bf1c21] flex flex-col justify-center items-center overflow-hidden py-24 px-4 md:px-12 select-none"
     >
-      {/* Textura global de papel de fundo do manifesto */}
       <div className="absolute inset-0 bg-grain opacity-15 mix-blend-overlay pointer-events-none" />
 
-      {/* CRATERA EM FORMATO DE ESTRELA ESTILHAÇADA */}
       <motion.div 
         variants={starHoleVariants}
         className="absolute inset-0 flex justify-center items-center z-10 pointer-events-none p-4"
@@ -141,7 +139,6 @@ export default function PhraseSection() {
             clipPath: "polygon(50% 0%, 57% 18%, 78% 8%, 70% 28%, 95% 25%, 80% 43%, 100% 55%, 78% 62%, 88% 85%, 65% 78%, 60% 100%, 48% 82%, 30% 95%, 35% 72%, 5% 82%, 18% 58%, 0% 45%, 22% 38%, 10% 15%, 32% 25%, 38% 3%, 46% 20%)"
           }}
         >
-          {/* IMAGEM REVELANDO NO FUNDO DA TV */}
           <motion.img 
             variants={imageFadeInVariants}
             src={tvImage}
@@ -149,7 +146,6 @@ export default function PhraseSection() {
             className="absolute inset-0 w-full h-full object-cover mix-blend-luminosity"
           />
 
-          {/* EFEITO DE GRANULAÇÃO COBRINDO A IMAGEM */}
           <motion.div 
             animate={tvStaticAnimation}
             className="absolute -inset-40 opacity-[0.38] pointer-events-none bg-repeat z-10"
@@ -159,43 +155,35 @@ export default function PhraseSection() {
             }}
           />
           
-          {/* Linha horizontal fantasma simulando varredura CRT de monitor quebrado */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent h-1/2 w-full animate-[pulse_1s_infinite] pointer-events-none mix-blend-overlay z-10" />
         </div>
       </motion.div>
 
-      {/* CONTAINER DO MANIFESTO */}
       <motion.div 
         variants={textContainerVariants}
         className="w-full max-w-[1300px] mx-auto flex flex-col justify-center items-center text-center relative z-20 font-brutal"
       >
-        {/* LINHA 1 */}
-        <motion.h2 variants={lineVariants} className="text-[15vw] md:text-[11vw] leading-[0.8] tracking-tight uppercase w-full max-w-5xl">
+        <motion.h2 variants={lineVariants} className="text-[15vw] md:text-[11vw] leading-[0.8] tracking-tight uppercase w-full whitespace-nowrap">
           {brutalImpactEffect("Arte")}
         </motion.h2>
 
-        {/* LINHA 2 */}
-        <motion.h2 variants={lineVariants} className="text-[9vw] md:text-[6.5vw] leading-[0.85] tracking-tighter uppercase w-full max-w-4xl my-2">
+        <motion.h2 variants={lineVariants} className="text-[9vw] md:text-[6.5vw] leading-[0.85] tracking-tighter uppercase w-full my-2 whitespace-nowrap">
           {brutalImpactEffect("como exposição")}
         </motion.h2>
 
-        {/* LINHA 3 */}
-        <motion.h2 variants={lineVariants} className="text-[5.5vw] md:text-[4vw] leading-[0.9] tracking-widest uppercase w-full max-w-xl my-1 opacity-80">
+        <motion.h2 variants={lineVariants} className="text-[5.5vw] md:text-[4vw] leading-[0.9] tracking-widest uppercase w-full my-1 opacity-80 whitespace-nowrap">
           {brutalImpactEffect("das")}
         </motion.h2>
 
-        {/* LINHA 4 */}
-        <motion.h2 variants={lineVariants} className="text-[13vw] md:text-[9.5vw] leading-[0.8] tracking-tight uppercase w-full max-w-5xl my-2">
+        <motion.h2 variants={lineVariants} className="text-[13vw] md:text-[9.5vw] leading-[0.8] tracking-tight uppercase w-full my-2 whitespace-nowrap">
           {brutalImpactEffect("Vísceras")}
         </motion.h2>
 
-        {/* LINHA 5 */}
-        <motion.h2 variants={lineVariants} className="text-[5.5vw] md:text-[4vw] leading-[0.9] tracking-widest uppercase w-full max-w-xl my-1 opacity-80">
+        <motion.h2 variants={lineVariants} className="text-[5.5vw] md:text-[4vw] leading-[0.9] tracking-widest uppercase w-full my-1 opacity-80 whitespace-nowrap">
           {brutalImpactEffect("e da")}
         </motion.h2>
 
-        {/* LINHA 6 */}
-        <motion.h2 variants={lineVariants} className="text-[13vw] md:text-[10vw] leading-[0.8] tracking-tighter uppercase w-full max-w-5xl mt-2">
+        <motion.h2 variants={lineVariants} className="text-[13vw] md:text-[10vw] leading-[0.8] tracking-tighter uppercase w-full mt-2 whitespace-nowrap">
           {brutalImpactEffect("realidade.")}
         </motion.h2>
       </motion.div>

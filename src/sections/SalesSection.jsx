@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { client, urlFor } from "../services/sanityClient";
 
 import logoBranca from "../assets/logo/logo branca.png";
@@ -31,9 +32,9 @@ function FloatingCard({ src, title, status, price, link, alignment, rotateDir, s
       exit={{ opacity: 0, scale: 0.8 }}
       className={`w-full flex ${alignClasses} my-12 md:my-16 first:mt-0 last:mb-0 select-none z-10`}
     >
-      <div className={`relative w-full ${sizeClass} bg-zinc-900/40 p-4 border border-zinc-800/60 backdrop-blur-sm flex flex-col group/card`}>
+      <div className={`relative w-full ${sizeClass} bg-zinc-900/40 p-4 border border-zinc-800/60 backdrop-blur-sm flex flex-col group/card isolate`}>
         
-        <div className="absolute -top-6 -right-6 z-50 h-12 w-36 select-none pointer-events-none mix-blend-screen rotate-12 transition-transform duration-300 group-hover/card:scale-110 group-hover/card:rotate-[18deg]">
+        <div className="absolute -top-5 -right-20 z-[60] h-20 w-56 select-none pointer-events-none mix-blend-normal rotate-[30deg] transition-transform duration-300 group-hover/card:scale-110 group-hover/card:rotate-[38deg]">
           <img 
             src={logoBranca} 
             alt="Badge External White" 
@@ -89,12 +90,12 @@ function FloatingCard({ src, title, status, price, link, alignment, rotateDir, s
             {status === "Disponível" ? (
               <a
                 href={link || "#contato"}
-                className="px-2.5 py-1.5 border border-zinc-700 hover:border-[#fe0000] hover:text-[#fe0000] transition-colors duration-300 text-[9px] bg-zinc-950 whitespace-nowrap font-bold"
+                className="px-2.5 py-1.5 border border-zinc-700 hover:border-zinc-500 hover:text-white transition-colors duration-300 text-[9px] bg-zinc-950 whitespace-nowrap font-bold relative z-30"
               >
                 Tenho Interesse ➔
               </a>
             ) : (
-              <span className="text-zinc-600 border border-zinc-800 bg-zinc-950/20 px-2.5 py-1.5 text-[9px] cursor-not-allowed uppercase font-bold tracking-widest">
+              <span className="text-zinc-600 border border-zinc-800 bg-zinc-950/20 px-2.5 py-1.5 text-[9px] cursor-not-allowed uppercase font-bold tracking-widest relative z-30">
                 Esgotado
               </span>
             )}
@@ -343,14 +344,27 @@ export default function SalesSection() {
                 ))}
               </AnimatePresence>
               
-              {filteredObras.length > visibleCount && (
-                <motion.div layout className="w-full flex justify-center pt-8 pb-16">
-                  <button
-                    onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
-                    className="font-mono text-[10px] uppercase tracking-widest text-white border border-zinc-800 hover:border-white hover:bg-white hover:text-black px-8 py-4 transition-all duration-300 bg-zinc-950/40 backdrop-blur-sm active:scale-95"
+              {filteredObras.length > 0 && (
+                <motion.div layout className="w-full flex flex-col sm:flex-row justify-center items-center gap-4 pt-8 pb-16">
+                  {filteredObras.length > visibleCount && (
+                    <button
+                      onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
+                      className="w-full sm:w-auto font-mono text-[10px] uppercase tracking-widest text-white border border-zinc-800 hover:border-white hover:bg-white hover:text-black px-8 py-4 transition-all duration-300 bg-zinc-950/40 backdrop-blur-sm active:scale-95"
+                    >
+                      [ Mostrar Mais // +3 ]
+                    </button>
+                  )}
+
+                  <Link
+                    to="/portfolio"
+                    className={`w-full sm:w-auto font-mono text-[10px] uppercase tracking-widest text-center px-8 py-4 transition-all duration-300 active:scale-95 border ${
+                      filteredObras.length > visibleCount
+                        ? "border-[#fe0000] text-[#fe0000] bg-transparent hover:bg-[#fe0000] hover:text-white"
+                        : "border-zinc-800 text-white bg-[#fe0000]/10 hover:bg-[#fe0000] hover:border-[#fe0000]"
+                    }`}
                   >
-                    [ Mostrar Mais // +3 ]
-                  </button>
+                    [ Ver Galeria Completa ➔ ]
+                  </Link>
                 </motion.div>
               )}
 
@@ -358,9 +372,15 @@ export default function SalesSection() {
                 <motion.div 
                   initial={{ opacity: 0 }} 
                   animate={{ opacity: 1 }} 
-                  className="w-full py-20 text-center font-mono text-zinc-500 text-xs border border-dashed border-zinc-800 uppercase"
+                  className="w-full py-20 text-center font-mono text-zinc-500 text-xs border border-dashed border-zinc-800 uppercase flex flex-col items-center gap-4"
                 >
-                  Nenhuma peça registrada sob esta combinação de parâmetros.
+                  <span>Nenhuma peça registrada sob esta combinação de parâmetros.</span>
+                  <Link
+                    to="/portfolio"
+                    className="mt-2 font-mono text-[10px] uppercase tracking-widest text-[#fe0000] border border-[#fe0000] hover:bg-[#fe0000] hover:text-white px-6 py-3 transition-all duration-300"
+                  >
+                    [ Explorar Portfolio Geral ]
+                  </Link>
                 </motion.div>
               )}
             </motion.div>
@@ -395,7 +415,7 @@ export default function SalesSection() {
               className="relative max-w-5xl max-h-[70vh] border border-zinc-900 bg-black flex items-center justify-center overflow-hidden pointer-events-auto group/modal-img"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="absolute bottom-4 right-4 z-30 h-7 w-20 select-none pointer-events-none mix-blend-screen">
+              <div className="absolute bottom-1.5 right-1.5 z-30 h-7 w-20 select-none pointer-events-none mix-blend-screen">
                 <img 
                   src={logoBranca} 
                   alt="Modal Watermark White" 
