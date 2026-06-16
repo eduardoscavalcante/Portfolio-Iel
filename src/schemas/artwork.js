@@ -17,6 +17,7 @@ export default {
         list: [
           { title: 'Pinturas', value: 'Pinturas' },
           { title: 'Desenhos', value: 'Desenhos' },
+          { title: 'Prints', value: 'Prints' },
           { title: 'Design Gráfico', value: 'Design Gráfico' }
         ]
       }
