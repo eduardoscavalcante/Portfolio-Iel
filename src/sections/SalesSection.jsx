@@ -6,7 +6,7 @@ import { client, urlFor } from "../services/sanityClient";
 import logoBranca from "../assets/logo/logo branca.png";
 import logoVermelha from "../assets/logo/logo vermelha.png";
 
-function FloatingCard({ src, title, status, price, link, alignment, rotateDir, sizeClass, technicalData, onImageClick, obra, preventImageSave }) {
+function FloatingCard({ src, title, status, price, link, alignment, rotateDir, sizeClass, technicalData, onImageClick, obra, preventImageSave, isFeatured }) {
   const cardRef = useRef(null);
   
   const { scrollYProgress } = useScroll({
@@ -48,9 +48,17 @@ function FloatingCard({ src, title, status, price, link, alignment, rotateDir, s
         </div>
 
         <div className="w-full aspect-[4/5] overflow-hidden bg-zinc-950 border border-zinc-800 relative cursor-zoom-in">
-          <div className="absolute top-3 left-3 z-30 font-mono text-[9px] uppercase tracking-wider px-2 py-1 bg-black border border-zinc-800 text-white flex items-center gap-1.5 shadow-md">
-            <span className={`w-1.5 h-1.5 rounded-full ${status === "Disponível" ? "bg-emerald-500 animate-pulse" : "bg-zinc-600"}`} />
-            {status === "Disponível" ? "À Venda" : "Acervo Privado"}
+          {/* BADGES SUPERIORES: EXIBE MARCADOR CASO SEJA DESTAQUE OU SEJA PARA VENDA */}
+          <div className="absolute top-3 left-3 z-30 flex flex-col gap-1 items-start">
+            {isFeatured && (
+              <div className="font-mono text-[9px] uppercase tracking-wider px-2 py-0.5 bg-[#fe0000] border border-[#fe0000] text-white font-bold shadow-md animate-pulse">
+                ★ DESTAQUE
+              </div>
+            )}
+            <div className="font-mono text-[9px] uppercase tracking-wider px-2 py-1 bg-black border border-zinc-800 text-white flex items-center gap-1.5 shadow-md">
+              <span className={`w-1.5 h-1.5 rounded-full ${status === "Disponível" ? "bg-emerald-500 animate-pulse" : "bg-zinc-600"}`} />
+              {status === "Disponível" ? "À Venda" : "Acervo Privado"}
+            </div>
           </div>
 
           <div className="absolute inset-0 z-20 bg-transparent select-none pointer-events-auto" onClick={() => onImageClick(obra)} onContextMenu={preventImageSave} />
@@ -150,7 +158,8 @@ export default function SalesSection() {
   useEffect(() => {
     async function getSalesArtworks() {
       try {
-        const query = `*[_type == "artwork" && isForSale == true] | order(year desc) {
+        // ATUALIZAÇÃO DA QUERY: order(isFeatured desc, year desc) e busca da flag isFeatured
+        const query = `*[_type == "artwork" && isForSale == true] | order(isFeatured desc, year desc) {
           _id,
           title,
           status,
@@ -158,6 +167,7 @@ export default function SalesSection() {
           link,
           year,
           category,
+          isFeatured,
           mainImage,
           fullImage,
           code,
@@ -340,6 +350,7 @@ export default function SalesSection() {
                     obra={obra}
                     onImageClick={(item) => setActiveArtwork(item)}
                     preventImageSave={preventImageSave}
+                    isFeatured={obra.isFeatured}
                   />
                 ))}
               </AnimatePresence>
@@ -351,7 +362,7 @@ export default function SalesSection() {
                       onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
                       className="w-full sm:w-auto font-mono text-[10px] uppercase tracking-widest text-white border border-zinc-800 hover:border-white hover:bg-white hover:text-black px-8 py-4 transition-all duration-300 bg-zinc-950/40 backdrop-blur-sm active:scale-95"
                     >
-                      [ Mostrar Mais // +3 ]
+                      Mostrar Mais
                     </button>
                   )}
 
@@ -363,7 +374,7 @@ export default function SalesSection() {
                         : "border-zinc-800 text-white bg-[#fe0000]/10 hover:bg-[#fe0000] hover:border-[#fe0000]"
                     }`}
                   >
-                    [ Ver Galeria Completa ➔ ]
+                    Ver Galeria Completa ➔
                   </Link>
                 </motion.div>
               )}

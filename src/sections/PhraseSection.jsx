@@ -168,7 +168,7 @@ export default function PhraseSection() {
         </motion.h2>
 
         <motion.h2 variants={lineVariants} className="text-[9vw] md:text-[6.5vw] leading-[0.85] tracking-tighter uppercase w-full my-2 whitespace-nowrap">
-          {brutalImpactEffect("como exposição")}
+          {brutalImpactEffect("como exposiçao")}
         </motion.h2>
 
         <motion.h2 variants={lineVariants} className="text-[5.5vw] md:text-[4vw] leading-[0.9] tracking-widest uppercase w-full my-1 opacity-80 whitespace-nowrap">

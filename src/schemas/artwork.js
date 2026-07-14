@@ -7,7 +7,16 @@ export default {
     { name: 'year', title: 'Ano de Produção', type: 'string' },
     { name: 'description', title: 'Descrição / Conceito', type: 'text' },
     
-    // --- 🏷️ NOVO CAMPO ESTRUTURADO DE CATEGORIAS (Filtros Principais) ---
+    // --- ⭐ CAMPO DE PRIORIDADE/DESTAQUE ---
+    {
+      name: 'isFeatured',
+      title: 'Obra de Destaque (Prioridade)?',
+      type: 'boolean',
+      description: 'Se ativar, esta obra subirá automaticamente para o topo do grid na Galeria.',
+      initialValue: false
+    },
+    
+    // --- 🏷️ CAMPO ESTRUTURADO DE CATEGORIAS (Filtros Principais) ---
     {
       name: 'category',
       title: 'Categoria Principal (Filtro)',
@@ -31,7 +40,7 @@ export default {
       options: { layout: 'tags' }
     },
 
-    // --- 🖼️ ENGENHARIA DE DUAS FOTOS (CARD vs LIGHTBOX) ---
+    // --- 🖼️ ENGENHARIA DE FOTOS (CARD vs LIGHTBOX vs CARROSSEL) ---
     { 
       name: 'mainImage', 
       title: 'Imagem do Card (Corte Vertical)', 
@@ -41,10 +50,22 @@ export default {
     },
     { 
       name: 'fullImage', 
-      title: 'Imagem Completa (Lightbox / Tela Cheia)', 
+      title: 'Imagem Completa (Lightbox / Início do Carrossel)', 
       type: 'image', 
       options: { hotspot: true },
-      description: 'Esta imagem aparecerá quando o usuário clicar na obra (Proporção Real).'
+      description: 'Esta imagem aparecerá como a primeira opção quando o usuário abrir os detalhes da obra (Proporção Real).'
+    },
+    {
+      name: 'gallery',
+      title: 'Galeria de Fotos (Imagens Adicionais para o Modal)',
+      type: 'array',
+      description: 'Adicione fotos extras para alimentar o carrossel interativo de detalhes.',
+      of: [
+        {
+          type: 'image',
+          options: { hotspot: true }
+        }
+      ]
     },
     
     // --- 🛠️ CAMPOS DA SEÇÃO SALES ---
@@ -52,7 +73,7 @@ export default {
       name: 'isForSale',
       title: 'Colocar à Venda nesta Seção?',
       type: 'boolean',
-      description: 'Se ativar, a obra vai aparecer flutuando na seção Obras à Venda.'
+      description: 'Se ativar, a obra vai aparecer flutuando na seção Obras à Venda e liberará os filtros de status comercial.'
     },
     {
       name: 'status',
@@ -68,7 +89,8 @@ export default {
     {
       name: 'price',
       title: 'Valor da Obra (Opcional)',
-      type: 'string'
+      type: 'string',
+      description: 'Exemplo: R$ 1.200,00 ou deixe em branco para exibir [ SOB CONSULTA ].'
     },
     { name: 'link', title: 'Link de Interesse / Contato', type: 'string' },
     { name: 'code', title: 'Código da Ficha Técnica', type: 'string' },

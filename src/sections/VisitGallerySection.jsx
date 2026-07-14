@@ -110,12 +110,14 @@ export default function VisitGallerySectionDisruptive() {
 
       <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-50">
         
+        {/* CARD MONUMENTAL (Visite a Galeria) */}
         <MotionLink
           to="/portfolio"
           variants={itemVariants}
           whileHover="hover"
           className="group relative lg:col-span-6 flex flex-col justify-between overflow-hidden min-h-[340px] sm:min-h-[480px] cursor-pointer bg-zinc-950 border border-zinc-900 shadow-2xl rounded-lg z-50"
         >
+          {/* Imagem de Fundo do Card */}
           <motion.div 
             variants={{
               hover: { scale: 1.03, brightness: 0.85, opacity: 0.9 }
@@ -126,10 +128,21 @@ export default function VisitGallerySectionDisruptive() {
             <img src={cardBg} alt="Visite a Galeria" className="w-full h-full object-cover" />
           </motion.div>
 
+          {/* NOVO: Overlay Vermelho Dinâmico (Efeito de filtro restaurado!) */}
+          <motion.div 
+            variants={{
+              hover: { opacity: 0.5 }
+            }}
+            initial={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="absolute inset-0 bg-[#fe0000] mix-blend-multiply z-10 pointer-events-none"
+          />
+
+          {/* Gradiente Escuro de Acabamento */}
           <motion.div 
             variants={{ hover: { opacity: 0.3 } }}
             transition={{ duration: 0.4 }}
-            className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10" 
+            className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-15" 
           />
 
           <div className="relative z-20 mt-auto p-6 sm:p-8 pt-0">

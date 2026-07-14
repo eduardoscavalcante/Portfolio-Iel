@@ -12,13 +12,19 @@ export default function PortfolioSection() {
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorApi, setErrorApi] = useState(false);
+  
+  // Estado de Filtros Combinados
   const [selectedCategory, setSelectedCategory] = useState("TODOS");
+  const [selectedStatus, setSelectedStatus] = useState("TODOS"); // "TODOS", "Disponível", "Coleção Privada"
+  
   const [selectedArtwork, setSelectedArtwork] = useState(null);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   const ITEMS_PER_PAGE = 6;
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
   const categories = ["TODOS", "Pinturas", "Desenhos", "Prints", "Design Gráfico"];
+  const statusOptions = ["TODOS", "Disponível", "Coleção Privada"];
 
   const preventImageSave = (e) => {
     e.preventDefault();
@@ -43,15 +49,18 @@ export default function PortfolioSection() {
         setIsLoading(true);
         setErrorApi(false);
         
-        const query = `*[_type == "artwork"] | order(year desc) {
+        // Atualizado order(isFeatured desc, year desc) para respeitar a sua marcação de prioridade do Sanity
+        const query = `*[_type == "artwork"] | order(isFeatured desc, year desc) {
           _id,
           title,
           year,
           description,
           category,
           tags,
+          isFeatured,
           mainImage,
           fullImage,
+          gallery,
           medium,
           size,
           isForSale,
@@ -73,15 +82,54 @@ export default function PortfolioSection() {
     fetchArtworks();
   }, []);
 
+  // Reseta a paginação caso mude de categoria ou status
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedStatus]);
 
-  const filteredItems = selectedCategory === "TODOS"
-    ? items
-    : items.filter((item) => item.category === selectedCategory);
+  useEffect(() => {
+    setCurrentPhotoIndex(0);
+  }, [selectedArtwork]);
+
+  // --- ENGENHARIA DE FILTRAGEM COMBINADA ---
+  const filteredItems = items.filter((item) => {
+    const matchesCategory = selectedCategory === "TODOS" || item.category === selectedCategory;
+    
+    // Se o filtro for Disponível, o item precisa ter isForSale == true E status == "Disponível"
+    // Se o filtro for Coleção Privada, pode ser isForSale == true com status == "Coleção Privada" OU não estar catalogado pra venda (isForSale == false)
+    let matchesStatus = true;
+    if (selectedStatus === "Disponível") {
+      matchesStatus = item.isForSale && item.status === "Disponível";
+    } else if (selectedStatus === "Coleção Privada") {
+      matchesStatus = !item.isForSale || item.status === "Coleção Privada";
+    }
+
+    return matchesCategory && matchesStatus;
+  });
 
   const paginatedItems = filteredItems.slice(0, visibleCount);
+
+  const getArtworkImages = (artwork) => {
+    if (!artwork) return [];
+    const images = [];
+    if (artwork.fullImage || artwork.mainImage) {
+      images.push(artwork.fullImage ? artwork.fullImage : artwork.mainImage);
+    }
+    if (artwork.gallery && artwork.gallery.length > 0) {
+      artwork.gallery.forEach((img) => images.push(img));
+    }
+    return images;
+  };
+
+  const activeImages = getArtworkImages(selectedArtwork);
+
+  const handlePrevPhoto = () => {
+    setCurrentPhotoIndex((prev) => (prev === 0 ? activeImages.length - 1 : prev - 1));
+  };
+
+  const handleNextPhoto = () => {
+    setCurrentPhotoIndex((prev) => (prev === activeImages.length - 1 ? 0 : prev + 1));
+  };
 
   return (
     <section 
@@ -127,26 +175,55 @@ export default function PortfolioSection() {
 
         {!isLoading && !errorApi && (
           <>
-            <div className="flex flex-col gap-4 mb-16 max-w-5xl">
-              <span className="text-xs font-mono text-zinc-500 uppercase tracking-wider">// CATEGORIAS</span>
-              <div className="flex flex-wrap gap-3 items-center">
-                {categories.map((cat) => {
-                  const isSelected = selectedCategory === cat || (cat === "TODOS" && selectedCategory === "TODOS");
-                  return (
-                    <button
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat === "TODOS" ? "TODOS" : cat)}
-                      className={`px-4 py-2 text-xs md:text-sm font-mono tracking-wider uppercase border transition-all duration-300 cursor-pointer
-                        ${isSelected
-                          ? "bg-[#fe0000] text-white border-[#fe0000] font-bold"
-                          : "bg-zinc-950/80 text-zinc-400 border-zinc-800 hover:border-white hover:text-white"
-                        }`}
-                    >
-                      {cat === "TODOS" ? "[ EXIBIR TODOS ]" : cat}
-                    </button>
-                  );
-                })}
+            {/* GRUPO DE FILTROS DUPLOS (CATEGORIA & DISPONIBILIDADE) */}
+            <div className="flex flex-col md:flex-row gap-8 md:gap-16 mb-16 max-w-7xl items-start justify-between">
+              
+              {/* Filtro 1: Categorias Principais */}
+              <div className="flex flex-col gap-4 max-w-4xl">
+                <span className="text-xs font-mono text-zinc-500 uppercase tracking-wider">// CATEGORIAS</span>
+                <div className="flex flex-wrap gap-3 items-center">
+                  {categories.map((cat) => {
+                    const isSelected = selectedCategory === cat;
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={`px-4 py-2 text-xs md:text-sm font-mono tracking-wider uppercase border transition-all duration-300 cursor-pointer
+                          ${isSelected
+                            ? "bg-[#fe0000] text-white border-[#fe0000] font-bold"
+                            : "bg-zinc-950/80 text-zinc-400 border-zinc-800 hover:border-white hover:text-white"
+                          }`}
+                      >
+                        {cat === "TODOS" ? "EXIBIR TODOS" : cat}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+
+              {/* Filtro 2: Disponibilidade / Filtro Comercial Comercial */}
+              <div className="flex flex-col gap-4 md:w-auto w-full">
+                <span className="text-xs font-mono text-zinc-500 uppercase tracking-wider">// DISPONIBILIDADE</span>
+                <div className="flex flex-wrap md:justify-end gap-2.5 items-center">
+                  {statusOptions.map((st) => {
+                    const isSelected = selectedStatus === st;
+                    return (
+                      <button
+                        key={st}
+                        onClick={() => setSelectedStatus(st)}
+                        className={`px-3 py-1.5 text-xs font-mono tracking-wider uppercase border transition-all duration-200 cursor-pointer
+                          ${isSelected
+                            ? "bg-white text-black border-white font-bold"
+                            : "bg-zinc-950/40 text-zinc-500 border-zinc-900 hover:border-zinc-700 hover:text-zinc-300"
+                          }`}
+                      >
+                        {st === "TODOS" ? "TODAS" : st === "Disponível" ? "À Venda" : "Acervo Retido"}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
             </div>
 
             {paginatedItems.length > 0 ? (
@@ -167,14 +244,21 @@ export default function PortfolioSection() {
                           onClick={() => setSelectedArtwork(item)}
                           className="w-full aspect-[3/4] overflow-hidden bg-zinc-900 relative border border-zinc-900 cursor-zoom-in group/img"
                         >
-                          {item.isForSale && (
-                            <div className="absolute top-3 left-3 z-30 font-mono text-[9px] uppercase tracking-wider px-2 py-1 bg-black border border-zinc-800 text-white flex items-center gap-1.5 shadow-md">
-                              <span className={`w-1.5 h-1.5 rounded-full ${item.status === "Disponível" ? "bg-emerald-500 animate-pulse" : "bg-zinc-600"}`} />
-                              {item.status === "Disponível" ? "À Venda" : "Coleção Privada"}
-                            </div>
-                          )}
+                          {/* BADGE DE VENDA OU BADGE DE PRIORIDADE */}
+                          <div className="absolute top-3 left-3 z-30 flex flex-col gap-1">
+                            {item.isFeatured && (
+                              <div className="font-mono text-[9px] uppercase tracking-wider px-2 py-0.5 bg-[#fe0000] border border-[#fe0000] text-white font-bold w-fit shadow-md animate-pulse">
+                                ★ DESTAQUE
+                              </div>
+                            )}
+                            {item.isForSale && (
+                              <div className="font-mono text-[9px] uppercase tracking-wider px-2 py-1 bg-black border border-zinc-800 text-white flex items-center gap-1.5 shadow-md w-fit">
+                                <span className={`w-1.5 h-1.5 rounded-full ${item.status === "Disponível" ? "bg-emerald-500 animate-pulse" : "bg-zinc-600"}`} />
+                                {item.status === "Disponível" ? "À Venda" : "Coleção Privada"}
+                              </div>
+                            )}
+                          </div>
 
-                          {/* 🛡️ MARCA D'ÁGUA EXTERNA RECALIBRADA (Fica exatamente em cima do canto inferior direito da imagem) */}
                           <div className="absolute bottom-3 right-3 z-30 h-5 w-12 select-none pointer-events-none mix-blend-screen">
                             <img 
                               src={logoBranca} 
@@ -188,7 +272,6 @@ export default function PortfolioSection() {
                             />
                           </div>
 
-                          {/* 🔒 CAPA INVISÍVEL ANTI-PROTECÇÃO (Z-20 para não chocar e travar o clique sobre o asset) */}
                           <div className="absolute inset-0 z-20 bg-transparent select-none pointer-events-auto" onContextMenu={preventImageSave} />
 
                           {item.mainImage && (
@@ -227,7 +310,7 @@ export default function PortfolioSection() {
                             onClick={() => setSelectedArtwork(item)}
                             className="w-full py-2 border border-zinc-800 font-mono text-xs text-zinc-400 uppercase tracking-wider text-center cursor-pointer transition-colors hover:border-white hover:text-white group-hover:bg-zinc-900/80"
                           >
-                            [ DETALHES + ]
+                            VER MAIS DETALHES
                           </button>
                         </div>
                       </motion.div>
@@ -241,7 +324,7 @@ export default function PortfolioSection() {
                       onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
                       className="px-6 py-4 bg-zinc-950 text-white font-mono text-xs tracking-widest border border-zinc-800 hover:border-white hover:bg-white hover:text-black transition-all duration-300 uppercase cursor-pointer"
                     >
-                      [ CARREGAR MAIS OBRAS // + ]
+                      MAIS OBRAS
                     </button>
                   </div>
                 )}
@@ -250,7 +333,12 @@ export default function PortfolioSection() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full py-24 border border-dashed border-zinc-800 flex flex-col items-center justify-center text-center bg-zinc-950/50 backdrop-blur-sm">
                 <span className="font-mono text-xs text-[#fe0000] tracking-widest mb-2">[ ZERO_MATCH_ERROR ]</span>
                 <p className="font-brutal text-2xl md:text-3xl uppercase text-zinc-400 max-w-md">Nenhuma obra combina com os cruzamentos selecionados.</p>
-                <button onClick={() => setSelectedCategory("TODOS")} className="mt-6 px-4 py-2 font-mono text-xs uppercase bg-white text-black border border-white font-bold hover:bg-transparent hover:text-white transition-colors cursor-pointer">Resetar Filtros</button>
+                <button 
+                  onClick={() => { setSelectedCategory("TODOS"); setSelectedStatus("TODOS"); }} 
+                  className="mt-6 px-4 py-2 font-mono text-xs uppercase bg-white text-black border border-white font-bold hover:bg-transparent hover:text-white transition-colors cursor-pointer"
+                >
+                  Resetar Filtros
+                </button>
               </motion.div>
             )}
           </>
@@ -271,15 +359,13 @@ export default function PortfolioSection() {
             <div className="relative max-w-5xl w-full max-h-[85vh] flex flex-col md:flex-row bg-zinc-950 border border-zinc-800 p-6 gap-6 z-10 overflow-y-auto md:overflow-visible">
               <button
                 onClick={() => setSelectedArtwork(null)}
-                className="absolute -top-12 right-0 md:top-6 md:right-6 font-mono text-xs tracking-widest bg-[#fe0000] text-white px-3 py-1.5 font-bold uppercase cursor-pointer border border-[#fe0000] hover:bg-transparent hover:text-[#fe0000] transition-colors"
+                className="absolute -top-12 right-0 md:top-6 md:right-6 font-mono text-xs tracking-widest bg-[#fe0000] text-white px-3 py-1.5 font-bold uppercase cursor-pointer border border-[#fe0000] hover:bg-transparent hover:text-[#fe0000] transition-colors z-40"
               >
                 [ FECHAR X ]
               </button>
               
-              {/* CONTAINER DA IMAGEM AMPLIADA COM HOVER DE WATERMARK SEGURO */}
-              <div className="w-full md:w-3/5 flex items-center justify-center bg-zinc-900 border border-zinc-900 overflow-hidden aspect-square md:aspect-auto md:h-[65vh] relative group/modal-img cursor-default">
+              <div className="w-full md:w-3/5 flex flex-col bg-zinc-900 border border-zinc-900 relative group/modal-img h-[50vh] md:h-[65vh] select-none">
                 
-                {/* 🛡️ MARCA D'ÁGUA INTERNA RECALIBRADA (Z-30 em cima da imagem e da capa transparente) */}
                 <div className="absolute bottom-4 right-4 z-30 h-7 w-20 select-none pointer-events-none mix-blend-screen">
                   <img 
                     src={logoBranca} 
@@ -289,21 +375,51 @@ export default function PortfolioSection() {
                   <img 
                     src={logoVermelha} 
                     alt="Modal Watermark Red" 
-                    className="absolute inset-0 h-full w-full object-contain opacity-0 transition-opacity duration-500 ease-in-out group-hover/modal-img:opacity-90 animate-pulse" 
+                    className="absolute inset-0 h-full w-full object-contain opacity-0 transition-opacity duration-500 ease-in-out group-hover/modal-img:opacity-90" 
                   />
                 </div>
 
-                {/* 🔒 CAPA INVISÍVEL ANTI-PROTECÇÃO (Z-20) */}
                 <div className="absolute inset-0 z-20 bg-transparent select-none pointer-events-auto" onContextMenu={preventImageSave} />
 
-                {selectedArtwork.mainImage && (
-                  <img
-                    src={urlFor(selectedArtwork.fullImage ? selectedArtwork.fullImage : selectedArtwork.mainImage).width(1200).auto("format").url()}
-                    alt={selectedArtwork.title}
-                    onContextMenu={preventImageSave}
-                    onDragStart={preventImageSave}
-                    className="w-full h-full object-contain select-none pointer-events-none z-10"
-                  />
+                <div className="w-full flex-grow flex items-center justify-center relative overflow-hidden bg-black/40">
+                  <AnimatePresence mode="wait">
+                    {activeImages.length > 0 && (
+                      <motion.img
+                        key={currentPhotoIndex}
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 1.02 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        src={urlFor(activeImages[currentPhotoIndex]).width(1200).auto("format").url()}
+                        alt={`${selectedArtwork.title} - Foto ${currentPhotoIndex + 1}`}
+                        onContextMenu={preventImageSave}
+                        onDragStart={preventImageSave}
+                        className="max-w-full max-h-full object-contain select-none pointer-events-none z-10 p-2"
+                      />
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {activeImages.length > 1 && (
+                  <div className="w-full flex justify-between items-center border-t border-zinc-800 bg-zinc-950 p-3 z-30 relative pointer-events-auto">
+                    <button
+                      onClick={handlePrevPhoto}
+                      className="font-mono text-[10px] tracking-wider text-zinc-400 hover:text-white transition-colors cursor-pointer uppercase py-1 px-2 border border-zinc-900 hover:border-zinc-700 bg-zinc-900/30"
+                    >
+                      [ &lt; ANTERIOR ]
+                    </button>
+
+                    <span className="font-mono text-[10px] text-zinc-500 tracking-widest uppercase">
+                      FOTO: {currentPhotoIndex + 1} // {activeImages.length}
+                    </span>
+
+                    <button
+                      onClick={handleNextPhoto}
+                      className="font-mono text-[10px] tracking-wider text-zinc-400 hover:text-white transition-colors cursor-pointer uppercase py-1 px-2 border border-zinc-900 hover:border-zinc-700 bg-zinc-900/30"
+                    >
+                      [ SEGUINTE &gt; ]
+                    </button>
+                  </div>
                 )}
               </div>
 
